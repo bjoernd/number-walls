@@ -1,0 +1,1 @@
+I would like to give visual feedback to the user. On validation of the input, i would like the fiels with correct numbers to flash green, while wrong number fields should flash red. Only flash in the fields that were empty at the beginning. The flash should be a slow transition from the background color to green/red and back.

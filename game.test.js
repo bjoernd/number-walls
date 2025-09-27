@@ -234,6 +234,40 @@ test.describe('Game Logic Validation', () => {
         const result = gameCore.validateAnswers(userAnswers);
         test.expect(result).toBe(false);
     });
+
+    test.it('should validate individual answers for UI feedback', () => {
+        const gameCore = new NumberWallCore();
+
+        // Set up a known wall state
+        gameCore.values = { a: 5, b: 7, c: 3, d: 12, e: 10, f: 22 };
+        gameCore.hiddenFields = ['a', 'd', 'f'];
+
+        // Mock mixed user inputs (some correct, some incorrect)
+        const userAnswers = { a: '5', d: '15', f: '22' }; // a and f correct, d incorrect
+
+        const fieldResults = gameCore.validateIndividualAnswers(userAnswers);
+
+        test.expect(fieldResults.a).toBe(true);  // Should be correct
+        test.expect(fieldResults.d).toBe(false); // Should be incorrect
+        test.expect(fieldResults.f).toBe(true);  // Should be correct
+    });
+
+    test.it('should handle invalid inputs in individual validation', () => {
+        const gameCore = new NumberWallCore();
+
+        // Set up a known wall state
+        gameCore.values = { a: 5, b: 7, c: 3, d: 12, e: 10, f: 22 };
+        gameCore.hiddenFields = ['a', 'd', 'f'];
+
+        // Mock user inputs with invalid input
+        const userAnswers = { a: 'abc', d: '12', f: '22' };
+
+        const fieldResults = gameCore.validateIndividualAnswers(userAnswers);
+
+        test.expect(fieldResults.a).toBe(false); // Invalid input should be false
+        test.expect(fieldResults.d).toBe(true);  // Should be correct
+        test.expect(fieldResults.f).toBe(true);  // Should be correct
+    });
 });
 
 test.describe('Validation Timing', () => {

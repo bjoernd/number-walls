@@ -106,6 +106,28 @@ class NumberWall extends NumberWallCore {
         }
 
         const allCorrect = this.validateAnswers(userAnswers);
+        const fieldResults = this.validateIndividualAnswers(userAnswers);
+
+        // Apply visual feedback to each user-filled field
+        for (const field of this.hiddenFields) {
+            const input = this.inputs[field];
+            const isCorrect = fieldResults[field];
+
+            // Remove any existing animation classes
+            input.classList.remove('flash-correct', 'flash-incorrect');
+
+            // Add appropriate animation class
+            if (isCorrect) {
+                input.classList.add('flash-correct');
+            } else {
+                input.classList.add('flash-incorrect');
+            }
+
+            // Remove the animation class after animation completes
+            setTimeout(() => {
+                input.classList.remove('flash-correct', 'flash-incorrect');
+            }, 2000);
+        }
 
         this.message.textContent = allCorrect ? 'Right!' : 'Wrong!';
         this.message.style.color = allCorrect ? 'green' : 'red';

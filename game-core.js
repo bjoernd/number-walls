@@ -79,6 +79,34 @@ class NumberWallCore {
 
         return true;
     }
+
+    validateIndividualAnswers(userAnswers) {
+        // Create a copy of current values with user answers filled in
+        const testValues = { ...this.values };
+        const fieldResults = {};
+
+        // Apply user answers to the test values
+        for (const field of this.hiddenFields) {
+            const userValue = parseInt(userAnswers[field]);
+            // Validate input is a valid non-negative integer
+            if (isNaN(userValue) || userValue < 0) {
+                fieldResults[field] = false;
+            } else {
+                testValues[field] = userValue;
+                fieldResults[field] = true; // Will be updated below if wrong
+            }
+        }
+
+        // Check if each field contributes to correct mathematical relationships
+        for (const field of this.hiddenFields) {
+            if (!fieldResults[field]) continue; // Skip if already invalid
+
+            // Check if this field's value is correct by seeing if it matches the expected value
+            fieldResults[field] = (testValues[field] === this.values[field]);
+        }
+
+        return fieldResults;
+    }
 }
 
 // Export for Node.js
