@@ -24,18 +24,16 @@ class NumberWall extends NumberWallCore {
 
     setupEventListeners() {
         // Add input validation to only allow numeric characters
-        Object.values(this.inputs).forEach(input => {
+        Object.keys(this.inputs).forEach(fieldName => {
+            const input = this.inputs[fieldName];
+
             input.addEventListener('input', (e) => {
                 let value = e.target.value.replace(/[^0-9]/g, '');
                 if (value.length > 2) value = value.slice(0, 2);
                 e.target.value = value;
 
-                // Check if this was the 2nd digit entered and all fields are filled
-                if (value.length === 2) {
-                    this.checkIfAllFieldsFilledWithImmediate();
-                } else {
-                    this.checkIfAllFieldsFilled();
-                }
+                // Check if all fields are filled and determine validation timing
+                this.handleInputChange(fieldName, value);
             });
 
             input.addEventListener('keypress', (e) => {
@@ -46,7 +44,7 @@ class NumberWall extends NumberWallCore {
         });
     }
 
-    checkIfAllFieldsFilled() {
+    handleInputChange(fieldName, value) {
         if (!this.gameActive) return;
 
         // Clear any existing timeout
@@ -57,23 +55,25 @@ class NumberWall extends NumberWallCore {
 
         // Check if all hidden fields have values
         const allFilled = this.hiddenFields.every(field => {
-            const value = this.inputs[field].value.trim();
-            return value !== '';
+            const fieldValue = this.inputs[field].value.trim();
+            return fieldValue !== '';
         });
 
         if (allFilled) {
-            // Get the last filled field to determine validation delay
-            const lastFilledField = this.getLastFilledField();
-            const lastValue = this.inputs[lastFilledField].value;
+            // If this field has 2 digits, validate immediately
+            if (value.length === 2) {
+                this.checkAnswers();
+                return;
+            }
 
-            // Determine if we expect a 2-digit number for this field
-            const expects2Digits = this.expectsTwoDigits(lastFilledField);
+            // If this field has 1 digit, check if 2-digit numbers are possible
+            const canBeTwoDigits = this.canFieldBeTwoDigits(fieldName);
 
-            if (!expects2Digits || lastValue.length === 2) {
-                // Validate immediately if we don't expect 2 digits or already have 2 digits
+            if (!canBeTwoDigits) {
+                // Only 1-digit numbers possible, validate immediately
                 this.checkAnswers();
             } else {
-                // Allow up to 1 second for 2-digit input, but validate immediately on 2nd digit
+                // 2-digit numbers possible, wait up to 1 second
                 this.validationTimeout = setTimeout(() => {
                     this.checkAnswers();
                     this.validationTimeout = null;
@@ -82,90 +82,70 @@ class NumberWall extends NumberWallCore {
         }
     }
 
-    checkIfAllFieldsFilledWithImmediate() {
-        if (!this.gameActive) return;
+    canFieldBeTwoDigits(fieldName) {
+        // Check if any 2-digit values (10-20) could work for this field
+        // IMPORTANT: Ignore the current partial input for the field being checked
 
-        // Clear any existing timeout
-        if (this.validationTimeout) {
-            clearTimeout(this.validationTimeout);
-            this.validationTimeout = null;
-        }
-
-        // Check if all hidden fields have values
-        const allFilled = this.hiddenFields.every(field => {
-            const value = this.inputs[field].value.trim();
-            return value !== '';
-        });
-
-        if (allFilled) {
-            // Validate immediately since a 2nd digit was just entered
-            this.checkAnswers();
-        }
-    }
-
-    getLastFilledField() {
-        // Find the field that was filled last (highest input order)
-        let lastField = null;
-        for (const field of this.hiddenFields) {
-            const value = this.inputs[field].value.trim();
-            if (value !== '') {
-                lastField = field;
-            }
-        }
-        return lastField;
-    }
-
-    expectsTwoDigits(field) {
-        // Calculate the possible range for this field based on current known values
-        const possibleValues = this.getPossibleValuesForField(field);
-        return possibleValues.some(value => value >= 10);
-    }
-
-    getPossibleValuesForField(field) {
-        // Get current values (both known and user-entered)
+        // Get current state, but exclude the field we're checking
         const currentValues = {};
         Object.keys(this.inputs).forEach(key => {
-            if (this.hiddenFields.includes(key)) {
+            if (this.hiddenFields.includes(key) && key !== fieldName) {
+                // For other hidden fields, use their current values
                 const userValue = this.inputs[key].value.trim();
-                currentValues[key] = userValue !== '' ? parseInt(userValue) : null;
-            } else {
+                if (userValue !== '') {
+                    currentValues[key] = parseInt(userValue);
+                } else {
+                    currentValues[key] = null;
+                }
+            } else if (!this.hiddenFields.includes(key)) {
+                // For visible fields, use the known values
                 currentValues[key] = this.values[key];
+            } else {
+                // For the field being checked, set to null (we'll test values)
+                currentValues[key] = null;
             }
         });
 
-        const possibleValues = [];
-
-        // Try all possible values 0-20 for this field and see which ones create valid walls
-        for (let testValue = 0; testValue <= 20; testValue++) {
-            currentValues[field] = testValue;
-
-            // Check if this creates a valid number wall
-            if (this.isValidWallConfiguration(currentValues)) {
-                possibleValues.push(testValue);
+        // Test all 2-digit values (10-20) to see if any work
+        for (let testValue = 10; testValue <= 20; testValue++) {
+            currentValues[fieldName] = testValue;
+            if (this.isValidPartialWall(currentValues)) {
+                return true;
             }
         }
 
-        return possibleValues;
+        return false;
     }
 
-    isValidWallConfiguration(values) {
-        // Check if the current configuration satisfies the number wall equations
-        // A + B = D, B + C = E, D + E = F
+    isValidPartialWall(values) {
+        // Check mathematical relationships where we have enough values
         const { a, b, c, d, e, f } = values;
 
-        // Only validate if we have enough values to check
+        // Check A + B = D if we have all three
         if (a !== null && b !== null && d !== null) {
             if (a + b !== d) return false;
         }
+
+        // Check B + C = E if we have all three
         if (b !== null && c !== null && e !== null) {
             if (b + c !== e) return false;
         }
+
+        // Check D + E = F if we have all three
         if (d !== null && e !== null && f !== null) {
             if (d + e !== f) return false;
         }
 
+        // Check if values are in valid range
+        for (const value of Object.values(values)) {
+            if (value !== null && (value < 0 || value > 20)) {
+                return false;
+            }
+        }
+
         return true;
     }
+
 
 
     displayWall() {
