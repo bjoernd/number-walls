@@ -71,7 +71,7 @@ class TestFramework {
 }
 
 // Import the core game logic
-const NumberWallCore = require('./game-core.js');
+const { NumberWallCore, CORRECT_MESSAGES, INCORRECT_MESSAGES } = require('./game-core.js');
 
 // Initialize test framework
 const test = new TestFramework();
@@ -489,18 +489,15 @@ test.describe('High Score Functionality', () => {
 test.describe('German Localization', () => {
     test.it('should return a valid correct message from German synonyms', () => {
         const gameCore = new NumberWallCore();
-        const correctMessages = ['Gut', 'Super', 'Toll', 'Prima', 'Klasse', 'Genau'];
 
         const message = gameCore.getRandomCorrectMessage();
-        test.expect(correctMessages).toContain(message);
+        test.expect(CORRECT_MESSAGES).toContain(message);
     });
 
     test.it('should return a valid incorrect message from German synonyms', () => {
         const gameCore = new NumberWallCore();
-        const incorrectMessages = ['Nee', 'Achwas', 'Stimmt nicht', 'Nicht ganz', 'Schau genauer hin'];
-
         const message = gameCore.getRandomIncorrectMessage();
-        test.expect(incorrectMessages).toContain(message);
+        test.expect(INCORRECT_MESSAGES).toContain(message);
     });
 
     test.it('should return different messages when called multiple times', () => {

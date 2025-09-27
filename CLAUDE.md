@@ -141,15 +141,15 @@ The application provides a complete German language experience:
 - **Accessibility**: Proper German language metadata for screen readers
 
 ### Dynamic Validation Messages
-- **Correct answer synonyms**: Random selection from "Gut", "Super", "Toll", "Prima", "Klasse", "Genau"
-- **Incorrect answer synonyms**: Random selection from "Nee", "Achwas", "Stimmt nicht", "Nicht ganz", "Schau genauer hin"
+- **Correct answer synonyms**: Random selection from "Gut", "Super", "Toll", "Prima", "Klasse", "Genau", "Spitze", "Wunderbar", "Fantastisch", "Ausgezeichnet", "Cool", "Stark", "Mega", "Stimmt genau", "Bingo", "Das ist es", "Bravo", "Juhu", "Yay"
+- **Incorrect answer synonyms**: Random selection from "Nee", "Achwas", "Stimmt nicht", "Nicht ganz", "Schau genauer hin", "Auweia", "Huch", "Oje", "Nö", "Schade", "Quatsch", "Nix da", "Oha", "Ups", "So nicht", "Anders"
 - **Random selection**: Different message displayed each time for variety
 - **Integration**: Seamlessly integrated with existing validation flow
 
 ### Localization Methods
 - **`getRandomCorrectMessage()`**: Returns random German positive feedback
 - **`getRandomIncorrectMessage()`**: Returns random German negative feedback
-- **Message variety**: 6 correct and 5 incorrect synonyms for engaging feedback
+- **Message variety**: 19 correct and 16 incorrect synonyms for engaging feedback
 - **Testing**: Comprehensive validation of message selection and variety
 
 ### Localization Testing

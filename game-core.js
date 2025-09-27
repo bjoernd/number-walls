@@ -1,5 +1,9 @@
 // Core game logic separated from DOM dependencies for testing
 
+// Shared constants for localization
+const CORRECT_MESSAGES = ['Gut', 'Super', 'Toll', 'Prima', 'Klasse', 'Genau', 'Spitze', 'Wunderbar', 'Fantastisch', 'Ausgezeichnet', 'Cool', 'Stark', 'Mega', 'Stimmt genau', 'Bingo', 'Das ist es', 'Bravo', 'Juhu', 'Yay'];
+const INCORRECT_MESSAGES = ['Nee', 'Achwas', 'Stimmt nicht', 'Nicht ganz', 'Schau genauer hin', 'Auweia', 'Huch', 'Oje', 'Nö', 'Schade', 'Quatsch', 'Nix da', 'Oha', 'Ups', 'So nicht', 'Anders'];
+
 class NumberWallCore {
     constructor() {
         this.values = { a: 0, b: 0, c: 0, d: 0, e: 0, f: 0 };
@@ -143,19 +147,17 @@ class NumberWallCore {
     }
 
     getRandomCorrectMessage() {
-        const messages = ['Gut', 'Super', 'Toll', 'Prima', 'Klasse', 'Genau'];
-        const randomIndex = Math.floor(Math.random() * messages.length);
-        return messages[randomIndex];
+        const randomIndex = Math.floor(Math.random() * CORRECT_MESSAGES.length);
+        return CORRECT_MESSAGES[randomIndex];
     }
 
     getRandomIncorrectMessage() {
-        const messages = ['Nee', 'Achwas', 'Stimmt nicht', 'Nicht ganz', 'Schau genauer hin'];
-        const randomIndex = Math.floor(Math.random() * messages.length);
-        return messages[randomIndex];
+        const randomIndex = Math.floor(Math.random() * INCORRECT_MESSAGES.length);
+        return INCORRECT_MESSAGES[randomIndex];
     }
 }
 
 // Export for Node.js
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = NumberWallCore;
+    module.exports = { NumberWallCore, CORRECT_MESSAGES, INCORRECT_MESSAGES };
 }
