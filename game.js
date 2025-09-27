@@ -1,7 +1,6 @@
-class NumberWall {
+class NumberWall extends NumberWallCore {
     constructor() {
-        this.values = { a: 0, b: 0, c: 0, d: 0, e: 0, f: 0 };
-        this.hiddenFields = [];
+        super();
         this.gameActive = false;
 
         this.initializeElements();
@@ -40,32 +39,6 @@ class NumberWall {
         });
     }
 
-    generateRandomNumber() {
-        return Math.floor(Math.random() * 21); // 0 to 20
-    }
-
-    generateWall() {
-        // Generate A, B, C randomly
-        this.values.a = this.generateRandomNumber();
-        this.values.b = this.generateRandomNumber();
-        this.values.c = this.generateRandomNumber();
-
-        // Calculate D, E, F based on rules
-        this.values.d = this.values.a + this.values.b;
-        this.values.e = this.values.b + this.values.c;
-        this.values.f = this.values.d + this.values.e;
-
-        // Ensure all values are within 0-20 range
-        if (this.values.d > 20 || this.values.e > 20 || this.values.f > 20) {
-            this.generateWall(); // Regenerate if any value exceeds 20
-        }
-    }
-
-    selectHiddenFields() {
-        const allFields = ['a', 'b', 'c', 'd', 'e', 'f'];
-        const shuffled = allFields.sort(() => 0.5 - Math.random());
-        this.hiddenFields = shuffled.slice(0, 3);
-    }
 
     displayWall() {
         Object.keys(this.inputs).forEach(field => {
@@ -100,15 +73,12 @@ class NumberWall {
     checkAnswers() {
         if (!this.gameActive) return;
 
-        let allCorrect = true;
-
+        const userAnswers = {};
         for (const field of this.hiddenFields) {
-            const userValue = parseInt(this.inputs[field].value);
-            if (isNaN(userValue) || userValue !== this.values[field]) {
-                allCorrect = false;
-                break;
-            }
+            userAnswers[field] = this.inputs[field].value;
         }
+
+        const allCorrect = this.validateAnswers(userAnswers);
 
         this.message.textContent = allCorrect ? 'Right!' : 'Wrong!';
         this.message.style.color = allCorrect ? 'green' : 'red';

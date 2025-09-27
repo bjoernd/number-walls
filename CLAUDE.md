@@ -52,6 +52,13 @@ Open `index.html` in a web browser - no build step required.
 
 Tests are written for the core logic layer (`game-core.js`) to ensure mathematical correctness, input validation, and edge case handling. The browser layer (`game.js`) relies on manual testing since it's primarily DOM manipulation.
 
+### Testing Requirements
+
+- **MUST write tests for all new functionality** - Every new feature, method, or significant logic change requires corresponding unit tests
+- **MUST verify all tests pass before considering any task complete** - Run `npm test` and ensure all tests pass before marking work as done
+- **Tests should cover edge cases and error conditions** - Not just happy path scenarios
+- **Core logic changes require test updates** - Any modifications to `game-core.js` must include test verification
+
 ## Game Requirements
 
 - Numbers constrained to 0-20 range
