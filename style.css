@@ -62,7 +62,7 @@ body {
     box-shadow: 0 6px 12px rgba(155, 89, 182, 0.2);
 }
 
-.score-item {
+.info-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -70,22 +70,7 @@ body {
     min-width: 140px;
 }
 
-.option-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 8px 0;
-    min-width: 140px;
-}
-
-.score-label {
-    font-weight: bold;
-    color: #2c3e50;
-    margin-right: 15px;
-    font-size: 20px;
-}
-
-.option-label {
+.info-label {
     font-weight: bold;
     color: #2c3e50;
     margin-right: 15px;
@@ -127,8 +112,10 @@ body {
 
 .brick-container {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
+    justify-content: center;
+    gap: 20px;
     background: linear-gradient(135deg, #f0fff0, #e6ffe6);
     border: 3px solid #27ae60;
     border-radius: 12px;
@@ -137,14 +124,6 @@ body {
     flex: 1;
     min-width: 50%;
     align-self: stretch;
-}
-
-.wall-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-    width: fit-content;
 }
 
 .wall-row {
@@ -177,16 +156,6 @@ body {
     background: transparent;
 }
 
-.controls {
-    text-align: center;
-    margin: 30px;
-}
-
-.controls button {
-    padding: 15px 30px;
-    font-size: 20px;
-    margin: 0 15px;
-}
 
 .message {
     text-align: center;

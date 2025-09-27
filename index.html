@@ -12,35 +12,33 @@
 
     <div class="game-layout">
         <div class="brick-container">
-            <div class="wall-container">
-                <!-- Top row: F -->
-                <div class="wall-row">
-                    <div class="brick" id="brick-f">
-                        <input type="text" id="f" maxlength="2">
-                    </div>
+            <!-- Top row: F -->
+            <div class="wall-row">
+                <div class="brick" id="brick-f">
+                    <input type="text" id="f" maxlength="2">
                 </div>
+            </div>
 
-                <!-- Middle row: D, E -->
-                <div class="wall-row">
-                    <div class="brick" id="brick-d">
-                        <input type="text" id="d" maxlength="2">
-                    </div>
-                    <div class="brick" id="brick-e">
-                        <input type="text" id="e" maxlength="2">
-                    </div>
+            <!-- Middle row: D, E -->
+            <div class="wall-row">
+                <div class="brick" id="brick-d">
+                    <input type="text" id="d" maxlength="2">
                 </div>
+                <div class="brick" id="brick-e">
+                    <input type="text" id="e" maxlength="2">
+                </div>
+            </div>
 
-                <!-- Bottom row: A, B, C -->
-                <div class="wall-row">
-                    <div class="brick" id="brick-a">
-                        <input type="text" id="a" maxlength="2">
-                    </div>
-                    <div class="brick" id="brick-b">
-                        <input type="text" id="b" maxlength="2">
-                    </div>
-                    <div class="brick" id="brick-c">
-                        <input type="text" id="c" maxlength="2">
-                    </div>
+            <!-- Bottom row: A, B, C -->
+            <div class="wall-row">
+                <div class="brick" id="brick-a">
+                    <input type="text" id="a" maxlength="2">
+                </div>
+                <div class="brick" id="brick-b">
+                    <input type="text" id="b" maxlength="2">
+                </div>
+                <div class="brick" id="brick-c">
+                    <input type="text" id="c" maxlength="2">
                 </div>
             </div>
         </div>
@@ -51,19 +49,19 @@
             </div>
 
             <div class="score-container">
-                <div class="score-item">
-                    <span class="score-label">Richtig:</span>
+                <div class="info-item">
+                    <span class="info-label">Richtig:</span>
                     <span class="score-value" id="right-score">0</span>
                 </div>
-                <div class="score-item">
-                    <span class="score-label">Falsch:</span>
+                <div class="info-item">
+                    <span class="info-label">Falsch:</span>
                     <span class="score-value" id="wrong-score">0</span>
                 </div>
             </div>
 
             <div class="options-container">
-                <div class="option-item">
-                    <span class="option-label">Sound:</span>
+                <div class="info-item">
+                    <span class="info-label">Sound:</span>
                     <button id="sound-toggle" class="sound-button sound-on" title="Sound ein/aus">
                         🔊
                     </button>
