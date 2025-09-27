@@ -1,4 +1,4 @@
-# Pyramiden-Puzzle-Herausforderung
+# Pyramiden-Puzzle-Challenge
 
 A browser-based math game that teaches addition through number wall puzzles.
 
