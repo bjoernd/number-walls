@@ -2,6 +2,7 @@ class NumberWall extends NumberWallCore {
     constructor() {
         super();
         this.gameActive = false;
+        this.validationTimeout = null;
 
         this.initializeElements();
         this.setupEventListeners();
@@ -40,6 +41,12 @@ class NumberWall extends NumberWallCore {
     checkIfAllFieldsFilled() {
         if (!this.gameActive) return;
 
+        // Clear any existing timeout
+        if (this.validationTimeout) {
+            clearTimeout(this.validationTimeout);
+            this.validationTimeout = null;
+        }
+
         // Check if all hidden fields have values
         const allFilled = this.hiddenFields.every(field => {
             const value = this.inputs[field].value.trim();
@@ -47,7 +54,11 @@ class NumberWall extends NumberWallCore {
         });
 
         if (allFilled) {
-            this.checkAnswers();
+            // Wait 500ms before validating to allow completion of 2-digit numbers
+            this.validationTimeout = setTimeout(() => {
+                this.checkAnswers();
+                this.validationTimeout = null;
+            }, 500);
         }
     }
 
@@ -82,6 +93,12 @@ class NumberWall extends NumberWallCore {
 
     checkAnswers() {
         if (!this.gameActive) return;
+
+        // Clear any pending validation timeout
+        if (this.validationTimeout) {
+            clearTimeout(this.validationTimeout);
+            this.validationTimeout = null;
+        }
 
         const userAnswers = {};
         for (const field of this.hiddenFields) {

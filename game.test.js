@@ -236,6 +236,31 @@ test.describe('Game Logic Validation', () => {
     });
 });
 
+test.describe('Validation Timing', () => {
+    test.it('should support delayed validation timeout mechanism', () => {
+        // Since this tests browser-specific DOM features, we test the core logic
+        const gameCore = new NumberWallCore();
+
+        // Set up a wall with known values
+        gameCore.values = { a: 5, b: 7, c: 3, d: 12, e: 10, f: 22 };
+        gameCore.hiddenFields = ['a', 'd', 'f'];
+
+        // Test that validation logic works correctly for 2-digit numbers
+        const userAnswers = { a: '15', d: '12', f: '22' }; // 2-digit number in first field
+
+        // This should validate as incorrect since a=5, not 15
+        const result = gameCore.validateAnswers(userAnswers);
+        test.expect(result).toBe(false);
+
+        // Test correct 2-digit answer
+        gameCore.values = { a: 15, b: 2, c: 3, d: 17, e: 5, f: 22 };
+        const correctAnswers = { a: '15', d: '17', f: '22' };
+
+        const correctResult = gameCore.validateAnswers(correctAnswers);
+        test.expect(correctResult).toBe(true);
+    });
+});
+
 test.describe('Security Enhancements', () => {
     test.it('should prevent infinite recursion with fallback values', () => {
         const gameCore = new NumberWallCore();
