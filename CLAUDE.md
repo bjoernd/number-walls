@@ -36,6 +36,13 @@ npm test                    # Run all unit tests
 node game.test.js          # Run tests directly
 ```
 
+### Code Quality
+```bash
+node -c game-core.js && node -c game.js    # Validate JavaScript syntax
+```
+
+**IMPORTANT**: Always run syntax validation before committing code changes.
+
 ### Running the Game
 Open `index.html` in a web browser - no build step required.
 
