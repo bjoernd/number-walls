@@ -116,7 +116,7 @@ test.describe('NumberWallCore Class', () => {
         const avgNonZeroCount = nonZeroCounts.reduce((sum, count) => sum + count, 0) / nonZeroCounts.length;
 
         // 0 should appear significantly less than average of other numbers
-        // Expected: 0 appears ~2.4% (50 times), others ~4.8% (100 times each)
+        // Expected: 0 appears ~1.2% (25 times), others ~4.9% (103 times each)
         test.expect(zeroCount).toBeLessThanOrEqual(avgNonZeroCount * 0.7); // 0 should be at most 70% of average
     });
 

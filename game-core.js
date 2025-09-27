@@ -9,14 +9,14 @@ class NumberWallCore {
     }
 
     generateRandomNumber() {
-        // Weighted random generation: reduce likelihood of 0
-        // 0 has ~2.4% chance (1/41), numbers 1-20 each have ~4.9% chance (2/41)
-        const weightedRandom = Math.floor(Math.random() * 41);
+        // Weighted random generation: reduce likelihood of 0 even more
+        // 0 has ~1.2% chance (1/81), numbers 1-20 each have ~4.9% chance (4/81)
+        const weightedRandom = Math.floor(Math.random() * 81);
 
         if (weightedRandom === 0) {
-            return 0; // Only 1 out of 41 chances for 0
+            return 0; // Only 1 out of 81 chances for 0
         } else {
-            return Math.floor((weightedRandom - 1) / 2) + 1; // Numbers 1-20, each with 2/41 chance
+            return Math.floor((weightedRandom - 1) / 4) + 1; // Numbers 1-20, each with 4/81 chance
         }
     }
 
