@@ -230,19 +230,62 @@ class SoundManager {
         if (!this.audioContext || !this.soundEnabled) return;
 
         this.ensureAudioContextResumed().then(() => {
-            const chord = this.createOscillatorWithEnvelope(523.25, 'sine', 0.6, 0.05, 0.1);
-            const harmony = this.createOscillatorWithEnvelope(659.25, 'sine', 0.6, 0.05, 0.1);
+            // Tada! sound with ascending fanfare and sparkle
+            const now = this.audioContext.currentTime;
 
-            if (chord && harmony) {
-                chord.gainNode.gain.setValueAtTime(0.4, this.audioContext.currentTime);
-                harmony.gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime);
+            // Main ascending fanfare: C - E - G - C (major chord arpeggio)
+            const notes = [
+                { freq: 523.25, start: 0.0, duration: 0.15 },    // C5
+                { freq: 659.25, start: 0.08, duration: 0.15 },   // E5
+                { freq: 783.99, start: 0.16, duration: 0.15 },   // G5
+                { freq: 1046.5, start: 0.24, duration: 0.3 }     // C6 (held longer)
+            ];
 
-                chord.oscillator.start();
-                harmony.oscillator.start();
+            // Create main fanfare notes
+            notes.forEach(note => {
+                const osc = this.audioContext.createOscillator();
+                const gain = this.audioContext.createGain();
 
-                chord.oscillator.stop(this.audioContext.currentTime + 0.6);
-                harmony.oscillator.stop(this.audioContext.currentTime + 0.6);
-            }
+                osc.connect(gain);
+                gain.connect(this.audioContext.destination);
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(note.freq, now + note.start);
+
+                // Envelope for each note
+                gain.gain.setValueAtTime(0, now + note.start);
+                gain.gain.linearRampToValueAtTime(0.4, now + note.start + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + note.start + note.duration);
+
+                osc.start(now + note.start);
+                osc.stop(now + note.start + note.duration);
+            });
+
+            // Add sparkle/shimmer effect with higher frequencies
+            const sparkleNotes = [
+                { freq: 1318.5, start: 0.3, duration: 0.08 },    // E6
+                { freq: 1568.0, start: 0.35, duration: 0.08 },   // G6
+                { freq: 2093.0, start: 0.4, duration: 0.12 }     // C7
+            ];
+
+            sparkleNotes.forEach(note => {
+                const osc = this.audioContext.createOscillator();
+                const gain = this.audioContext.createGain();
+
+                osc.connect(gain);
+                gain.connect(this.audioContext.destination);
+
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(note.freq, now + note.start);
+
+                // Quick bright envelope for sparkle
+                gain.gain.setValueAtTime(0, now + note.start);
+                gain.gain.linearRampToValueAtTime(0.2, now + note.start + 0.01);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + note.start + note.duration);
+
+                osc.start(now + note.start);
+                osc.stop(now + note.start + note.duration);
+            });
         });
     }
 
@@ -250,18 +293,80 @@ class SoundManager {
         if (!this.audioContext || !this.soundEnabled) return;
 
         this.ensureAudioContextResumed().then(() => {
-            const sound = this.createOscillatorWithEnvelope(220, 'triangle', 0.4, 0.05, 0.15);
+            // Playful "oops" sound with wobble and comedic timing
+            const now = this.audioContext.currentTime;
 
-            if (sound) {
-                sound.gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime);
+            // Main "oops" tone - starts higher then drops with a wobble
+            const mainOsc = this.audioContext.createOscillator();
+            const mainGain = this.audioContext.createGain();
 
-                const now = this.audioContext.currentTime;
-                sound.oscillator.frequency.setValueAtTime(220, now);
-                sound.oscillator.frequency.exponentialRampToValueAtTime(180, now + 0.4);
+            mainOsc.connect(mainGain);
+            mainGain.connect(this.audioContext.destination);
 
-                sound.oscillator.start();
-                sound.oscillator.stop(this.audioContext.currentTime + 0.4);
+            mainOsc.type = 'sawtooth';
+
+            // Frequency slide: C4 → G3 → F3 with wobble
+            mainOsc.frequency.setValueAtTime(261.63, now);          // C4
+            mainOsc.frequency.exponentialRampToValueAtTime(196, now + 0.1);  // G3
+            mainOsc.frequency.exponentialRampToValueAtTime(174.61, now + 0.3); // F3
+
+            // Add wobble effect with LFO-like frequency modulation
+            const wobbleFreq = 8; // 8Hz wobble
+            const wobbleAmount = 10; // 10Hz deviation
+            for (let i = 0; i < 6; i++) {
+                const wobbleTime = now + 0.05 + (i * 0.04);
+                const currentFreq = 196 - (i * 3.5); // Gradually descending base frequency
+                const wobbleOffset = Math.sin(i * Math.PI / 3) * wobbleAmount;
+                mainOsc.frequency.setValueAtTime(currentFreq + wobbleOffset, wobbleTime);
             }
+
+            // Envelope for main sound
+            mainGain.gain.setValueAtTime(0, now);
+            mainGain.gain.linearRampToValueAtTime(0.35, now + 0.02);
+            mainGain.gain.exponentialRampToValueAtTime(0.2, now + 0.15);
+            mainGain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+            mainOsc.start(now);
+            mainOsc.stop(now + 0.35);
+
+            // Add a subtle "bonk" percussion effect at the beginning
+            const bonkOsc = this.audioContext.createOscillator();
+            const bonkGain = this.audioContext.createGain();
+
+            bonkOsc.connect(bonkGain);
+            bonkGain.connect(this.audioContext.destination);
+
+            bonkOsc.type = 'square';
+            bonkOsc.frequency.setValueAtTime(80, now);
+            bonkOsc.frequency.exponentialRampToValueAtTime(40, now + 0.08);
+
+            // Quick percussive envelope
+            bonkGain.gain.setValueAtTime(0, now);
+            bonkGain.gain.linearRampToValueAtTime(0.15, now + 0.005);
+            bonkGain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+
+            bonkOsc.start(now);
+            bonkOsc.stop(now + 0.08);
+
+            // Add a tiny "trill" at the end for comedic effect
+            const trillOsc = this.audioContext.createOscillator();
+            const trillGain = this.audioContext.createGain();
+
+            trillOsc.connect(trillGain);
+            trillGain.connect(this.audioContext.destination);
+
+            trillOsc.type = 'sine';
+            trillOsc.frequency.setValueAtTime(440, now + 0.25);
+            trillOsc.frequency.setValueAtTime(493.88, now + 0.27); // B4
+            trillOsc.frequency.setValueAtTime(440, now + 0.29);     // A4
+
+            // Quick trill envelope
+            trillGain.gain.setValueAtTime(0, now + 0.25);
+            trillGain.gain.linearRampToValueAtTime(0.1, now + 0.26);
+            trillGain.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
+
+            trillOsc.start(now + 0.25);
+            trillOsc.stop(now + 0.32);
         });
     }
 
