@@ -206,5 +206,53 @@ test.describe('Game Logic Validation', () => {
     });
 });
 
+test.describe('Security Enhancements', () => {
+    test.it('should prevent infinite recursion with fallback values', () => {
+        const gameCore = new NumberWallCore();
+
+        // Force recursion limit by calling with high attempt count
+        gameCore.generateWall(101);
+
+        // Should use fallback values
+        test.expect(gameCore.values.a).toBe(1);
+        test.expect(gameCore.values.b).toBe(1);
+        test.expect(gameCore.values.c).toBe(1);
+        test.expect(gameCore.values.d).toBe(2);
+        test.expect(gameCore.values.e).toBe(2);
+        test.expect(gameCore.values.f).toBe(4);
+    });
+
+    test.it('should maintain mathematical relationships in fallback values', () => {
+        const gameCore = new NumberWallCore();
+
+        // Force fallback values
+        gameCore.generateWall(101);
+
+        // Verify mathematical relationships are correct
+        test.expect(gameCore.values.d).toBe(gameCore.values.a + gameCore.values.b);
+        test.expect(gameCore.values.e).toBe(gameCore.values.b + gameCore.values.c);
+        test.expect(gameCore.values.f).toBe(gameCore.values.d + gameCore.values.e);
+    });
+
+    test.it('should handle normal generation without recursion limit', () => {
+        const gameCore = new NumberWallCore();
+
+        // Normal generation should work without hitting recursion limit
+        for (let i = 0; i < 10; i++) {
+            gameCore.generateWall();
+
+            // All values should be within range
+            test.expect(gameCore.values.a).toBeGreaterThanOrEqual(0);
+            test.expect(gameCore.values.a).toBeLessThanOrEqual(20);
+            test.expect(gameCore.values.f).toBeLessThanOrEqual(20);
+
+            // Mathematical relationships should hold
+            test.expect(gameCore.values.d).toBe(gameCore.values.a + gameCore.values.b);
+            test.expect(gameCore.values.e).toBe(gameCore.values.b + gameCore.values.c);
+            test.expect(gameCore.values.f).toBe(gameCore.values.d + gameCore.values.e);
+        }
+    });
+});
+
 // Show final results
 test.showResults();

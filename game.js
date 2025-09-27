@@ -23,7 +23,9 @@ class NumberWall extends NumberWallCore {
         // Add input validation to only allow numeric characters
         Object.values(this.inputs).forEach(input => {
             input.addEventListener('input', (e) => {
-                e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                let value = e.target.value.replace(/[^0-9]/g, '');
+                if (value.length > 2) value = value.slice(0, 2);
+                e.target.value = value;
                 this.checkIfAllFieldsFilled();
             });
 

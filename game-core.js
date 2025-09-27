@@ -10,7 +10,13 @@ class NumberWallCore {
         return Math.floor(Math.random() * 21); // 0 to 20
     }
 
-    generateWall() {
+    generateWall(attemptCount = 0) {
+        // Prevent infinite recursion with fallback values
+        if (attemptCount > 100) {
+            this.values = { a: 1, b: 1, c: 1, d: 2, e: 2, f: 4 };
+            return;
+        }
+
         // Generate A, B, C randomly
         this.values.a = this.generateRandomNumber();
         this.values.b = this.generateRandomNumber();
@@ -23,7 +29,7 @@ class NumberWallCore {
 
         // Ensure all values are within 0-20 range
         if (this.values.d > 20 || this.values.e > 20 || this.values.f > 20) {
-            this.generateWall(); // Regenerate if any value exceeds 20
+            this.generateWall(attemptCount + 1); // Regenerate with attempt counter
         }
     }
 
