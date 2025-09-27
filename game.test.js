@@ -550,5 +550,64 @@ test.describe('German Localization', () => {
     });
 });
 
+test.describe('Ambiguous Colors Bug Fix', () => {
+    test.it('should show green highlights for valid alternative solutions', () => {
+        const gameCore = new NumberWallCore();
+
+        // Set up the scenario from specs/005-ambiguous-colors.txt
+        //   _
+        // _  2
+        //_ 1  1
+        // This means: ? ? 2
+        //           ? 1 1
+        // With known values: b=1, c=1, e=1, and we need to find a, d, f
+
+        gameCore.values = { a: 0, b: 1, c: 1, d: 0, e: 2, f: 0 }; // Placeholder values
+        gameCore.hiddenFields = ['a', 'd', 'f'];
+
+        // Test first valid solution: A=5, D=6, F=8
+        // This should work: a=5, b=1, c=1, d=6, e=2, f=8
+        // Checking: a+b=d -> 5+1=6 ✓, b+c=e -> 1+1=2 ✓, d+e=f -> 6+2=8 ✓
+        const solution1 = { a: '5', d: '6', f: '8' };
+        const result1 = gameCore.validateAnswers(solution1);
+        const fieldResults1 = gameCore.validateIndividualAnswers(solution1);
+
+        test.expect(result1).toBe(true);
+        test.expect(fieldResults1.a).toBe(true);
+        test.expect(fieldResults1.d).toBe(true);
+        test.expect(fieldResults1.f).toBe(true);
+
+        // Test second valid solution: A=8, D=9, F=11
+        // This should work: a=8, b=1, c=1, d=9, e=2, f=11
+        // Checking: a+b=d -> 8+1=9 ✓, b+c=e -> 1+1=2 ✓, d+e=f -> 9+2=11 ✓
+        const solution2 = { a: '8', d: '9', f: '11' };
+        const result2 = gameCore.validateAnswers(solution2);
+        const fieldResults2 = gameCore.validateIndividualAnswers(solution2);
+
+        test.expect(result2).toBe(true);
+        test.expect(fieldResults2.a).toBe(true);
+        test.expect(fieldResults2.d).toBe(true);
+        test.expect(fieldResults2.f).toBe(true);
+    });
+
+    test.it('should still show red highlights for mathematically incorrect solutions', () => {
+        const gameCore = new NumberWallCore();
+
+        // Same setup as above
+        gameCore.values = { a: 0, b: 1, c: 1, d: 0, e: 2, f: 0 };
+        gameCore.hiddenFields = ['a', 'd', 'f'];
+
+        // Test invalid solution: A=5, D=7, F=8 (should fail because 5+1≠7)
+        const invalidSolution = { a: '5', d: '7', f: '8' };
+        const result = gameCore.validateAnswers(invalidSolution);
+        const fieldResults = gameCore.validateIndividualAnswers(invalidSolution);
+
+        test.expect(result).toBe(false);
+        test.expect(fieldResults.a).toBe(false);
+        test.expect(fieldResults.d).toBe(false);
+        test.expect(fieldResults.f).toBe(false);
+    });
+});
+
 // Show final results
 test.showResults();

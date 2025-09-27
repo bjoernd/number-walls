@@ -99,12 +99,29 @@ class NumberWallCore {
             }
         }
 
-        // Check if each field contributes to correct mathematical relationships
-        for (const field of this.hiddenFields) {
-            if (!fieldResults[field]) continue; // Skip if already invalid
+        // If all inputs are valid, check if the complete solution is mathematically correct
+        const allInputsValid = Object.values(fieldResults).every(result => result);
+        if (allInputsValid) {
+            // Validate the complete solution
+            const solutionValid = (
+                testValues.a + testValues.b === testValues.d &&
+                testValues.b + testValues.c === testValues.e &&
+                testValues.d + testValues.e === testValues.f
+            );
 
-            // Check if this field's value is correct by seeing if it matches the expected value
-            fieldResults[field] = (testValues[field] === this.values[field]);
+            // If the complete solution is valid, all fields are correct (fixes ambiguous colors)
+            if (solutionValid) {
+                for (const field of this.hiddenFields) {
+                    fieldResults[field] = true;
+                }
+            } else {
+                // For invalid solutions, check each field individually against original values
+                // This provides individual feedback while still handling ambiguous cases when valid
+                for (const field of this.hiddenFields) {
+                    const userValue = testValues[field];
+                    fieldResults[field] = (userValue === this.values[field]);
+                }
+            }
         }
 
         return fieldResults;

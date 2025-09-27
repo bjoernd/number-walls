@@ -1,0 +1,12 @@
+There is a bug when handling ambiguous inputs. Given
+
+   _
+ _  2
+_ 1  1
+
+We correctly accept solutions like
+
+A=5 D=6 F=8
+A=8 D=9 F=11
+
+But we still highlight the fields in red instead of green.
