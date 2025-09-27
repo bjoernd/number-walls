@@ -16,8 +16,9 @@ The codebase follows a clean separation of concerns:
 
 ### Key Classes
 
-- `NumberWall` (in `game.js`): Handles DOM manipulation, user interaction, game flow, and score display updates
+- `NumberWall` (in `game.js`): Handles DOM manipulation, user interaction, game flow, score display updates, and sound management
 - `NumberWallCore` (in `game-core.js`): Contains pure game logic for weighted number generation, validation, mathematical rules, score tracking, and German message generation
+- `SoundManager` (in `game-core.js`): Handles programmatic sound generation using Web Audio API for immersive feedback
 
 ### Mathematical Rules
 
@@ -52,7 +53,7 @@ Open `index.html` in a web browser - no build step required.
 - `style.css` - Game styling and layout
 - `game.js` - Browser-specific game implementation with DOM handling
 - `game-core.js` - Pure game logic for testing and potential reuse
-- `game.test.js` - Comprehensive unit tests (30 test cases including security, weighted random, high score, and German localization tests)
+- `game.test.js` - Comprehensive unit tests (40 test cases including security, weighted random, high score, German localization, and sound functionality tests)
 - `specs/000-idea.txt` - Original requirements and design decisions
 
 ## Testing Strategy
@@ -186,6 +187,44 @@ The game features an exciting animated feedback system that displays messages wi
 - **Randomness testing**: Confirms variety in animation selection over multiple calls
 - **Integration testing**: Ensures animations don't break core game functionality
 - **Performance testing**: Validates smooth animation performance in browser environment
+
+## Sound Effects System
+
+The game features programmatically generated sound effects using the Web Audio API for immersive audio feedback.
+
+### Sound Features
+- **Correct answer sound**: Harmonized chime using C (523.25Hz) and E (659.25Hz) notes with 0.6-second duration
+- **Incorrect answer sound**: Gentle descending buzz from 220Hz to 180Hz over 0.4 seconds using triangle wave
+- **New game sound**: Rising sweep tone (440Hz → 880Hz → 660Hz) over 0.3 seconds
+- **User control**: Sound toggle button with speaker icon (🔊/🔇) in score area
+- **Zero file size impact**: All sounds generated algorithmically without audio files
+
+### Audio Architecture
+- **SoundManager class**: Encapsulates all audio functionality with clean API
+- **Web Audio API integration**: Uses AudioContext, OscillatorNode, and GainNode for precise control
+- **ADSR envelope**: Attack-Decay-Sustain-Release envelope shaping for natural sound quality
+- **Error handling**: Graceful fallback when Web Audio API is unavailable
+- **Mobile compatibility**: Handles audio context suspension with automatic resumption
+
+### Sound Methods
+- **`playCorrectSound()`**: Plays harmonized celebration chime
+- **`playIncorrectSound()`**: Plays gentle correction buzz
+- **`playNewGameSound()`**: Plays transition sweep tone
+- **`setSoundEnabled(enabled)`**: Toggles sound on/off
+- **`isSoundEnabled()`**: Returns current sound state
+
+### Integration Points
+- **Validation feedback**: Sounds play immediately after answer validation in `checkAnswers()` method
+- **Game transitions**: New game sound plays before puzzle generation
+- **User control**: Sound toggle integrated into score container UI
+- **State persistence**: Sound preference maintained throughout browser session
+
+### Sound Testing
+- **Initialization testing**: Verifies sound manager starts with sound enabled
+- **State management testing**: Confirms proper toggling of sound enabled/disabled states
+- **Error resilience testing**: Validates graceful handling when Web Audio API unavailable
+- **Method safety testing**: Ensures all sound methods handle disabled state correctly
+- **Cross-platform testing**: Verifies functionality in Node.js environment for unit tests
 
 ## Game Requirements
 
