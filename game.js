@@ -170,6 +170,7 @@ class NumberWall extends NumberWallCore {
 
         this.gameActive = true;
         this.message.textContent = '';
+        this.message.className = 'message';
 
         // Focus on first empty field
         const firstHidden = this.hiddenFields[0];
@@ -221,8 +222,15 @@ class NumberWall extends NumberWallCore {
             this.incrementWrongAnswers();
         }
 
+        // Clear any existing animation classes
+        this.message.className = 'message';
+
+        // Set message text
         this.message.textContent = allCorrect ? this.getRandomCorrectMessage() : this.getRandomIncorrectMessage();
-        this.message.style.color = allCorrect ? 'green' : 'red';
+
+        // Apply random animation
+        const animationClass = allCorrect ? this.getRandomCorrectAnimation() : this.getRandomIncorrectAnimation();
+        this.message.classList.add(animationClass);
 
         // Update score display
         this.updateScoreDisplay();

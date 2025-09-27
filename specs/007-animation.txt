@@ -1,0 +1,1 @@
+I would like more animations in the UI. Instead of just printing a correct or incorrect message, can we make that message appear in an exciting way?

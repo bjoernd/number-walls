@@ -155,6 +155,18 @@ class NumberWallCore {
         const randomIndex = Math.floor(Math.random() * INCORRECT_MESSAGES.length);
         return INCORRECT_MESSAGES[randomIndex];
     }
+
+    getRandomCorrectAnimation() {
+        const animations = ['message-bounce-in', 'message-zoom-celebration', 'message-slide-sparkle', 'message-pulse-glow', 'message-flip-tada'];
+        const randomIndex = Math.floor(Math.random() * animations.length);
+        return animations[randomIndex];
+    }
+
+    getRandomIncorrectAnimation() {
+        const animations = ['message-shake-fade', 'message-wobble-in', 'message-slide-gentle', 'message-pulse-soft'];
+        const randomIndex = Math.floor(Math.random() * animations.length);
+        return animations[randomIndex];
+    }
 }
 
 // Export for Node.js

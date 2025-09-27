@@ -545,6 +545,38 @@ test.describe('German Localization', () => {
         test.expect(typeof correctMsg).toBe('string');
         test.expect(typeof incorrectMsg).toBe('string');
     });
+
+    test.it('should return valid animation classes for correct messages', () => {
+        const gameCore = new NumberWallCore();
+        const validCorrectAnimations = ['message-bounce-in', 'message-zoom-celebration', 'message-slide-sparkle', 'message-pulse-glow', 'message-flip-tada'];
+
+        const animation = gameCore.getRandomCorrectAnimation();
+        test.expect(validCorrectAnimations).toContain(animation);
+    });
+
+    test.it('should return valid animation classes for incorrect messages', () => {
+        const gameCore = new NumberWallCore();
+        const validIncorrectAnimations = ['message-shake-fade', 'message-wobble-in', 'message-slide-gentle', 'message-pulse-soft'];
+
+        const animation = gameCore.getRandomIncorrectAnimation();
+        test.expect(validIncorrectAnimations).toContain(animation);
+    });
+
+    test.it('should return different animation classes when called multiple times', () => {
+        const gameCore = new NumberWallCore();
+        const correctAnimations = new Set();
+        const incorrectAnimations = new Set();
+
+        // Generate 30 animations to increase likelihood of getting different ones
+        for (let i = 0; i < 30; i++) {
+            correctAnimations.add(gameCore.getRandomCorrectAnimation());
+            incorrectAnimations.add(gameCore.getRandomIncorrectAnimation());
+        }
+
+        // Should have at least 2 different animations (very likely with 30 attempts)
+        test.expect(correctAnimations.size).toBeGreaterThanOrEqual(2);
+        test.expect(incorrectAnimations.size).toBeGreaterThanOrEqual(2);
+    });
 });
 
 test.describe('Ambiguous Colors Bug Fix', () => {

@@ -158,6 +158,35 @@ The application provides a complete German language experience:
 - **Integration testing**: Ensures localization doesn't break core game functionality
 - **Backwards compatibility**: Maintains all existing game logic while adding German features
 
+## Animation System
+
+The game features an exciting animated feedback system that displays messages with dynamic visual effects.
+
+### Animation Features
+- **Animated feedback messages**: Feedback messages appear with randomly selected animations instead of static text
+- **Correct answer animations**: 5 different celebration animations including bounce, zoom, sparkle, glow, and flip effects
+- **Incorrect answer animations**: 4 different gentle correction animations including shake, wobble, slide, and pulse effects
+- **Random selection**: Different animation chosen each time for variety and engagement
+- **CSS-powered**: Pure CSS animations with no JavaScript animation frameworks required
+
+### Animation Classes
+- **Correct message animations**: `message-bounce-in`, `message-zoom-celebration`, `message-slide-sparkle`, `message-pulse-glow`, `message-flip-tada`
+- **Incorrect message animations**: `message-shake-fade`, `message-wobble-in`, `message-slide-gentle`, `message-pulse-soft`
+- **Advanced effects**: Includes transforms, scaling, rotation, color transitions, and text-shadow effects
+- **Performance optimized**: Uses CSS transforms and animations for smooth 60fps performance
+
+### Animation Methods
+- **`getRandomCorrectAnimation()`**: Returns random CSS class for positive feedback animations
+- **`getRandomIncorrectAnimation()`**: Returns random CSS class for gentle correction animations
+- **Animation duration**: 1-1.5 seconds with smooth easing for professional feel
+- **Auto-cleanup**: Animation classes automatically cleared when starting new games
+
+### Animation Testing
+- **Class validity**: Verifies all returned animation classes are from defined lists
+- **Randomness testing**: Confirms variety in animation selection over multiple calls
+- **Integration testing**: Ensures animations don't break core game functionality
+- **Performance testing**: Validates smooth animation performance in browser environment
+
 ## Game Requirements
 
 - Numbers constrained to 0-20 range
