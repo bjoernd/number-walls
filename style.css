@@ -51,6 +51,27 @@
     text-align: center;
 }
 
+.sound-button {
+    background: white;
+    border: 2px solid #bdc3c7;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 45px;
+    text-align: center;
+}
+
+.sound-button:hover {
+    background: #ecf0f1;
+    border-color: #34495e;
+}
+
+.sound-button.sound-off {
+    opacity: 0.5;
+}
+
 .wall-container {
     display: flex;
     flex-direction: column;

@@ -169,7 +169,124 @@ class NumberWallCore {
     }
 }
 
+class SoundManager {
+    constructor() {
+        this.audioContext = null;
+        this.soundEnabled = true;
+        this.initializeAudioContext();
+    }
+
+    initializeAudioContext() {
+        try {
+            if (typeof window !== 'undefined' && window.AudioContext) {
+                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        } catch (error) {
+            console.warn('Web Audio API not supported:', error);
+            this.audioContext = null;
+        }
+    }
+
+    ensureAudioContextResumed() {
+        if (this.audioContext && this.audioContext.state === 'suspended') {
+            return this.audioContext.resume();
+        }
+        return Promise.resolve();
+    }
+
+    setSoundEnabled(enabled) {
+        this.soundEnabled = enabled;
+    }
+
+    isSoundEnabled() {
+        return this.soundEnabled;
+    }
+
+    createOscillatorWithEnvelope(frequency, type, duration, attackTime = 0.1, decayTime = 0.2) {
+        if (!this.audioContext || !this.soundEnabled) return null;
+
+        const oscillator = this.audioContext.createOscillator();
+        const gainNode = this.audioContext.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(this.audioContext.destination);
+
+        oscillator.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
+        oscillator.type = type;
+
+        const now = this.audioContext.currentTime;
+        const sustainLevel = 0.3;
+        const releaseTime = duration - attackTime - decayTime;
+
+        gainNode.gain.setValueAtTime(0, now);
+        gainNode.gain.linearRampToValueAtTime(0.8, now + attackTime);
+        gainNode.gain.exponentialRampToValueAtTime(sustainLevel, now + attackTime + decayTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+        return { oscillator, gainNode };
+    }
+
+    playCorrectSound() {
+        if (!this.audioContext || !this.soundEnabled) return;
+
+        this.ensureAudioContextResumed().then(() => {
+            const chord = this.createOscillatorWithEnvelope(523.25, 'sine', 0.6, 0.05, 0.1);
+            const harmony = this.createOscillatorWithEnvelope(659.25, 'sine', 0.6, 0.05, 0.1);
+
+            if (chord && harmony) {
+                chord.gainNode.gain.setValueAtTime(0.4, this.audioContext.currentTime);
+                harmony.gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime);
+
+                chord.oscillator.start();
+                harmony.oscillator.start();
+
+                chord.oscillator.stop(this.audioContext.currentTime + 0.6);
+                harmony.oscillator.stop(this.audioContext.currentTime + 0.6);
+            }
+        });
+    }
+
+    playIncorrectSound() {
+        if (!this.audioContext || !this.soundEnabled) return;
+
+        this.ensureAudioContextResumed().then(() => {
+            const sound = this.createOscillatorWithEnvelope(220, 'triangle', 0.4, 0.05, 0.15);
+
+            if (sound) {
+                sound.gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime);
+
+                const now = this.audioContext.currentTime;
+                sound.oscillator.frequency.setValueAtTime(220, now);
+                sound.oscillator.frequency.exponentialRampToValueAtTime(180, now + 0.4);
+
+                sound.oscillator.start();
+                sound.oscillator.stop(this.audioContext.currentTime + 0.4);
+            }
+        });
+    }
+
+    playNewGameSound() {
+        if (!this.audioContext || !this.soundEnabled) return;
+
+        this.ensureAudioContextResumed().then(() => {
+            const sound = this.createOscillatorWithEnvelope(440, 'sine', 0.3, 0.02, 0.08);
+
+            if (sound) {
+                sound.gainNode.gain.setValueAtTime(0.2, this.audioContext.currentTime);
+
+                const now = this.audioContext.currentTime;
+                sound.oscillator.frequency.setValueAtTime(440, now);
+                sound.oscillator.frequency.exponentialRampToValueAtTime(880, now + 0.15);
+                sound.oscillator.frequency.exponentialRampToValueAtTime(660, now + 0.3);
+
+                sound.oscillator.start();
+                sound.oscillator.stop(this.audioContext.currentTime + 0.3);
+            }
+        });
+    }
+}
+
 // Export for Node.js
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { NumberWallCore, CORRECT_MESSAGES, INCORRECT_MESSAGES };
+    module.exports = { NumberWallCore, SoundManager, CORRECT_MESSAGES, INCORRECT_MESSAGES };
 }

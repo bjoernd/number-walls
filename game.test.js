@@ -71,7 +71,7 @@ class TestFramework {
 }
 
 // Import the core game logic
-const { NumberWallCore, CORRECT_MESSAGES, INCORRECT_MESSAGES } = require('./game-core.js');
+const { NumberWallCore, SoundManager, CORRECT_MESSAGES, INCORRECT_MESSAGES } = require('./game-core.js');
 
 // Initialize test framework
 const test = new TestFramework();
@@ -635,6 +635,67 @@ test.describe('Ambiguous Colors Bug Fix', () => {
         test.expect(fieldResults.a).toBe(false);
         test.expect(fieldResults.d).toBe(false);
         test.expect(fieldResults.f).toBe(false);
+    });
+});
+
+test.describe('Sound Manager', () => {
+    test.it('should initialize with sound enabled by default', () => {
+        const soundManager = new SoundManager();
+        test.expect(soundManager.isSoundEnabled()).toBe(true);
+    });
+
+    test.it('should allow toggling sound enabled state', () => {
+        const soundManager = new SoundManager();
+
+        // Default state should be enabled
+        test.expect(soundManager.isSoundEnabled()).toBe(true);
+
+        // Disable sound
+        soundManager.setSoundEnabled(false);
+        test.expect(soundManager.isSoundEnabled()).toBe(false);
+
+        // Re-enable sound
+        soundManager.setSoundEnabled(true);
+        test.expect(soundManager.isSoundEnabled()).toBe(true);
+    });
+
+    test.it('should not crash when Web Audio API is not available', () => {
+        // Create a sound manager in Node.js environment (no Web Audio API)
+        const soundManager = new SoundManager();
+
+        // These should not throw errors even without Web Audio API
+        soundManager.playCorrectSound();
+        soundManager.playIncorrectSound();
+        soundManager.playNewGameSound();
+
+        // Should still track enabled state
+        test.expect(soundManager.isSoundEnabled()).toBe(true);
+        soundManager.setSoundEnabled(false);
+        test.expect(soundManager.isSoundEnabled()).toBe(false);
+    });
+
+    test.it('should handle createOscillatorWithEnvelope gracefully without audio context', () => {
+        const soundManager = new SoundManager();
+
+        // In Node.js environment, this should return null without crashing
+        const result = soundManager.createOscillatorWithEnvelope(440, 'sine', 0.5);
+        test.expect(result).toBe(null);
+    });
+
+    test.it('should respect sound enabled setting for all sound methods', () => {
+        const soundManager = new SoundManager();
+
+        // Disable sound
+        soundManager.setSoundEnabled(false);
+
+        // These should not attempt to play sounds when disabled
+        // (we can't directly test audio output in Node.js, but we can verify no crashes)
+        soundManager.playCorrectSound();
+        soundManager.playIncorrectSound();
+        soundManager.playNewGameSound();
+
+        // No assertion needed - if we reach here without error, the test passes
+        test.expect(true).toBe(true);
     });
 });
 

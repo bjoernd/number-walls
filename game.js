@@ -3,6 +3,7 @@ class NumberWall extends NumberWallCore {
         super();
         this.gameActive = false;
         this.validationTimeout = null;
+        this.soundManager = new SoundManager();
 
         this.initializeElements();
         this.setupEventListeners();
@@ -12,6 +13,7 @@ class NumberWall extends NumberWallCore {
         this.message = document.getElementById('message');
         this.rightScoreElement = document.getElementById('right-score');
         this.wrongScoreElement = document.getElementById('wrong-score');
+        this.soundToggle = document.getElementById('sound-toggle');
         this.inputs = {
             a: document.getElementById('a'),
             b: document.getElementById('b'),
@@ -42,6 +44,33 @@ class NumberWall extends NumberWallCore {
                 }
             });
         });
+
+        // Add sound toggle event listener
+        if (this.soundToggle) {
+            this.soundToggle.addEventListener('click', () => {
+                this.toggleSound();
+            });
+        }
+    }
+
+    toggleSound() {
+        const currentState = this.soundManager.isSoundEnabled();
+        const newState = !currentState;
+
+        this.soundManager.setSoundEnabled(newState);
+
+        // Update button appearance and content
+        if (newState) {
+            this.soundToggle.textContent = '🔊';
+            this.soundToggle.classList.remove('sound-off');
+            this.soundToggle.classList.add('sound-on');
+            this.soundToggle.title = 'Sound ein/aus';
+        } else {
+            this.soundToggle.textContent = '🔇';
+            this.soundToggle.classList.remove('sound-on');
+            this.soundToggle.classList.add('sound-off');
+            this.soundToggle.title = 'Sound ein/aus';
+        }
     }
 
     handleInputChange(fieldName, value) {
@@ -215,11 +244,13 @@ class NumberWall extends NumberWallCore {
             }, 2000);
         }
 
-        // Update score counters
+        // Update score counters and play sounds
         if (allCorrect) {
             this.incrementRightAnswers();
+            this.soundManager.playCorrectSound();
         } else {
             this.incrementWrongAnswers();
+            this.soundManager.playIncorrectSound();
         }
 
         // Clear any existing animation classes
@@ -239,6 +270,7 @@ class NumberWall extends NumberWallCore {
 
         // Auto-start new game after 2 seconds
         setTimeout(() => {
+            this.soundManager.playNewGameSound();
             this.startGame();
         }, 2000);
     }
