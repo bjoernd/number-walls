@@ -1,0 +1,46 @@
+## Overview
+
+A number wall is a mechanism to teach kids addition. The wall consists of 6
+numbers A, B, C, D, E, F. The numbers are ordered like this:
+
+      [   F   ]
+   [  D  ][   E  ]
+[  A  ][  B  ][  C  ]
+
+Mathematically, the following equations are always true:
+
+A + B = D
+B + C = E
+D + E = F
+
+The teaching aspect lies in the fact that we can generate random such walls and
+then leave out 3 numbers, which the kid then needs to fill in.
+
+
+## Goal
+
+We are going to implement math walls as an application I can run locally in my
+web browser. I just want to use the browser's capability of executing code
+embedded in a local HTML page. I do not want any server components or  remote
+connectivity.
+
+Whe website is going to represent the number wall as descrbed above with 6
+bricks laid out in a row of 3 at the bottom, a row of 2 bricks centered in the
+middle, and a top brick centered on top of the other two rows.
+
+There is going to be a start button. When I click the start button, we will generate
+the 6 numbers A-F according to the rules above. We will then fill out 3
+randomly selected numbers into their respective places and leave the other 3
+bricks empty.
+
+The kid can then enter numbers into the remaining 3 fields and then click a
+"Check" button that tells them whether they were right or wrong.
+
+## Resolving ambiguity
+
+1. **Number ranges**: All numbers (A to F) should be between 0 and 20.
+2. **Difficulty levels**: No difficulty settings - single fixed approach.
+3. **Visual feedback**: Simple "Right/Wrong" message for initial prototype.
+4. **Reset behavior**: Display right/wrong message for 5 seconds, then automatically generate a new problem.
+5. **Input validation**: Accept only positive integers. Ignore non-numeric characters in input.
+6. **Styling**: Focus on brick ordering/positioning only. No additional stylistic elements initially.
