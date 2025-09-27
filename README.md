@@ -32,7 +32,7 @@ Scores reset when you reload the page.
 
 ## Features
 
-- **Interactive audio feedback**: Programmatically generated sound effects for correct answers, incorrect answers, and new puzzles
+- **Interactive audio feedback**: Programmatically generated sound effects for correct answers, incorrect answers, and new puzzles (activates after first interaction)
 - **German language support**: All feedback messages in German with varied vocabulary
 - **Animated visual feedback**: Dynamic animations synchronized with audio for enhanced engagement
 - **Sound control**: Toggle audio on/off with the speaker button
@@ -42,3 +42,5 @@ Scores reset when you reload the page.
 ## Requirements
 
 Any modern web browser with Web Audio API support - no installation needed.
+
+**Audio Note**: Due to browser security policies, sound effects activate after your first interaction with the game (clicking in an input field or pressing a key). This is normal behavior for web audio.

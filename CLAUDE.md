@@ -205,6 +205,7 @@ The game features programmatically generated sound effects using the Web Audio A
 - **ADSR envelope**: Attack-Decay-Sustain-Release envelope shaping for natural sound quality
 - **Error handling**: Graceful fallback when Web Audio API is unavailable
 - **Mobile compatibility**: Handles audio context suspension with automatic resumption
+- **Browser autoplay policy compliance**: Respects browser security restrictions requiring user interaction before audio playback
 
 ### Sound Methods
 - **`playCorrectSound()`**: Plays harmonized celebration chime
@@ -215,9 +216,10 @@ The game features programmatically generated sound effects using the Web Audio A
 
 ### Integration Points
 - **Validation feedback**: Sounds play immediately after answer validation in `checkAnswers()` method
-- **Game transitions**: New game sound plays before puzzle generation
+- **Game transitions**: New game sound plays before puzzle generation (after initial user interaction)
 - **User control**: Sound toggle integrated into score container UI
 - **State persistence**: Sound preference maintained throughout browser session
+- **Autoplay behavior**: No sound on initial page load due to browser autoplay policies; audio activates after first user interaction
 
 ### Sound Testing
 - **Initialization testing**: Verifies sound manager starts with sound enabled
