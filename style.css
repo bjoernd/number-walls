@@ -118,6 +118,7 @@
 .brick-container {
     display: flex;
     justify-content: center;
+    align-items: center;
     background: #f8f9fa;
     border: 3px solid #2c3e50;
     border-radius: 12px;
@@ -125,6 +126,7 @@
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     flex: 1;
     min-width: 50%;
+    align-self: stretch;
 }
 
 .wall-container {
