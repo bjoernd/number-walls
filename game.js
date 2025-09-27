@@ -198,8 +198,7 @@ class NumberWall extends NumberWallCore {
         this.displayWall();
 
         this.gameActive = true;
-        this.message.textContent = '';
-        this.message.className = 'message';
+        // Don't clear the message here - keep it until next evaluation
 
         // Focus on first empty field
         const firstHidden = this.hiddenFields[0];
@@ -253,10 +252,11 @@ class NumberWall extends NumberWallCore {
             this.soundManager.playIncorrectSound();
         }
 
-        // Clear any existing animation classes
+        // Clear any existing animation classes and previous message
         this.message.className = 'message';
+        this.message.textContent = '';
 
-        // Set message text
+        // Set new message text
         this.message.textContent = allCorrect ? this.getRandomCorrectMessage() : this.getRandomIncorrectMessage();
 
         // Apply random animation
@@ -289,5 +289,8 @@ class NumberWall extends NumberWallCore {
 // Initialize the game when page loads
 document.addEventListener('DOMContentLoaded', () => {
     const game = new NumberWall();
+    // Clear message on initial load only
+    game.message.textContent = '';
+    game.message.className = 'message';
     game.startGame();
 });
