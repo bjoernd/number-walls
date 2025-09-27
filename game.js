@@ -289,8 +289,8 @@ class NumberWall extends NumberWallCore {
 // Initialize the game when page loads
 document.addEventListener('DOMContentLoaded', () => {
     const game = new NumberWall();
-    // Clear message on initial load only
-    game.message.textContent = '';
+    // Set initial welcome message
+    game.message.textContent = 'Los geht\'s!';
     game.message.className = 'message';
     game.startGame();
 });
