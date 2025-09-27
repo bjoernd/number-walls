@@ -4,6 +4,8 @@ class NumberWallCore {
     constructor() {
         this.values = { a: 0, b: 0, c: 0, d: 0, e: 0, f: 0 };
         this.hiddenFields = [];
+        this.rightAnswers = 0;
+        this.wrongAnswers = 0;
     }
 
     generateRandomNumber() {
@@ -106,6 +108,21 @@ class NumberWallCore {
         }
 
         return fieldResults;
+    }
+
+    incrementRightAnswers() {
+        this.rightAnswers++;
+    }
+
+    incrementWrongAnswers() {
+        this.wrongAnswers++;
+    }
+
+    getScore() {
+        return {
+            right: this.rightAnswers,
+            wrong: this.wrongAnswers
+        };
     }
 }
 

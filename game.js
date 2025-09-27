@@ -10,6 +10,8 @@ class NumberWall extends NumberWallCore {
 
     initializeElements() {
         this.message = document.getElementById('message');
+        this.rightScoreElement = document.getElementById('right-score');
+        this.wrongScoreElement = document.getElementById('wrong-score');
         this.inputs = {
             a: document.getElementById('a'),
             b: document.getElementById('b'),
@@ -129,8 +131,18 @@ class NumberWall extends NumberWallCore {
             }, 2000);
         }
 
+        // Update score counters
+        if (allCorrect) {
+            this.incrementRightAnswers();
+        } else {
+            this.incrementWrongAnswers();
+        }
+
         this.message.textContent = allCorrect ? 'Right!' : 'Wrong!';
         this.message.style.color = allCorrect ? 'green' : 'red';
+
+        // Update score display
+        this.updateScoreDisplay();
 
         this.gameActive = false;
 
@@ -138,6 +150,16 @@ class NumberWall extends NumberWallCore {
         setTimeout(() => {
             this.startGame();
         }, 5000);
+    }
+
+    updateScoreDisplay() {
+        const score = this.getScore();
+        if (this.rightScoreElement) {
+            this.rightScoreElement.textContent = score.right;
+        }
+        if (this.wrongScoreElement) {
+            this.wrongScoreElement.textContent = score.wrong;
+        }
     }
 }
 

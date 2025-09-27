@@ -422,5 +422,69 @@ test.describe('Ambiguous Solution Validation', () => {
     });
 });
 
+test.describe('High Score Functionality', () => {
+    test.it('should initialize score counters to zero', () => {
+        const gameCore = new NumberWallCore();
+
+        const score = gameCore.getScore();
+        test.expect(score.right).toBe(0);
+        test.expect(score.wrong).toBe(0);
+    });
+
+    test.it('should increment right answers counter', () => {
+        const gameCore = new NumberWallCore();
+
+        gameCore.incrementRightAnswers();
+        gameCore.incrementRightAnswers();
+
+        const score = gameCore.getScore();
+        test.expect(score.right).toBe(2);
+        test.expect(score.wrong).toBe(0);
+    });
+
+    test.it('should increment wrong answers counter', () => {
+        const gameCore = new NumberWallCore();
+
+        gameCore.incrementWrongAnswers();
+        gameCore.incrementWrongAnswers();
+        gameCore.incrementWrongAnswers();
+
+        const score = gameCore.getScore();
+        test.expect(score.right).toBe(0);
+        test.expect(score.wrong).toBe(3);
+    });
+
+    test.it('should track both right and wrong answers independently', () => {
+        const gameCore = new NumberWallCore();
+
+        gameCore.incrementRightAnswers();
+        gameCore.incrementWrongAnswers();
+        gameCore.incrementRightAnswers();
+        gameCore.incrementWrongAnswers();
+        gameCore.incrementWrongAnswers();
+
+        const score = gameCore.getScore();
+        test.expect(score.right).toBe(2);
+        test.expect(score.wrong).toBe(3);
+    });
+
+    test.it('should maintain score persistence throughout game session', () => {
+        const gameCore = new NumberWallCore();
+
+        // Simulate playing multiple rounds
+        for (let i = 0; i < 5; i++) {
+            if (i % 2 === 0) {
+                gameCore.incrementRightAnswers();
+            } else {
+                gameCore.incrementWrongAnswers();
+            }
+        }
+
+        const score = gameCore.getScore();
+        test.expect(score.right).toBe(3); // rounds 0, 2, 4
+        test.expect(score.wrong).toBe(2); // rounds 1, 3
+    });
+});
+
 // Show final results
 test.showResults();
