@@ -146,10 +146,10 @@ class NumberWall extends NumberWallCore {
 
         this.gameActive = false;
 
-        // Auto-start new game after 5 seconds
+        // Auto-start new game after 2 seconds
         setTimeout(() => {
             this.startGame();
-        }, 5000);
+        }, 2000);
     }
 
     updateScoreDisplay() {

@@ -162,7 +162,7 @@ The application provides a complete German language experience:
 
 - Numbers constrained to 0-20 range
 - Exactly 3 fields hidden per puzzle
-- 5-second feedback display before auto-generating new puzzle
+- 2-second feedback display before auto-generating new puzzle
 - Input validation accepts only positive integers
 - No server dependencies - runs entirely in browser
 - Before comitting, always check if CLAUDE.md needs an update and include this update in the commit if needed.

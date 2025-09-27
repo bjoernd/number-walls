@@ -41,6 +41,6 @@ The kid can then enter numbers into the remaining 3 fields and then click a
 1. **Number ranges**: All numbers (A to F) should be between 0 and 20.
 2. **Difficulty levels**: No difficulty settings - single fixed approach.
 3. **Visual feedback**: Simple "Right/Wrong" message for initial prototype.
-4. **Reset behavior**: Display right/wrong message for 5 seconds, then automatically generate a new problem.
+4. **Reset behavior**: Display right/wrong message for 2 seconds, then automatically generate a new problem.
 5. **Input validation**: Accept only positive integers. Ignore non-numeric characters in input.
 6. **Styling**: Focus on brick ordering/positioning only. No additional stylistic elements initially.
