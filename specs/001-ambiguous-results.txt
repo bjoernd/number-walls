@@ -1,0 +1,14 @@
+Depending on which fields we decide to clear, there may be situations where the solution is ambiguous.
+
+Example: given this setup:
+
+     _
+   _   3
+ _   1  2
+
+A, D, and F are unknown and filled by the user. There are multiple valid assignments that suit the challenge, such as:
+
+A=2 D=3 F=6
+A=5 D=6 F=9
+
+In this situations, we need to accept all possible valid answers instead of relying on our precomputed answer.

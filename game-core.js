@@ -48,12 +48,35 @@ class NumberWallCore {
     }
 
     validateAnswers(userAnswers) {
+        // Create a copy of current values with user answers filled in
+        const testValues = { ...this.values };
+
+        // Apply user answers to the test values
         for (const field of this.hiddenFields) {
             const userValue = parseInt(userAnswers[field]);
-            if (isNaN(userValue) || userValue !== this.values[field]) {
-                return false;
+            // Validate input is a valid non-negative integer
+            if (isNaN(userValue) || userValue < 0) {
+                return false; // Invalid input
             }
+            testValues[field] = userValue;
         }
+
+        // Validate mathematical relationships
+        // A + B = D
+        if (testValues.a + testValues.b !== testValues.d) {
+            return false;
+        }
+
+        // B + C = E
+        if (testValues.b + testValues.c !== testValues.e) {
+            return false;
+        }
+
+        // D + E = F
+        if (testValues.d + testValues.e !== testValues.f) {
+            return false;
+        }
+
         return true;
     }
 }

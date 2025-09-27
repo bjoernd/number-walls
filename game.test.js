@@ -309,5 +309,84 @@ test.describe('Security Enhancements', () => {
     });
 });
 
+test.describe('Ambiguous Solution Validation', () => {
+    test.it('should accept multiple valid solutions for ambiguous scenarios', () => {
+        const gameCore = new NumberWallCore();
+
+        // Set up the ambiguous scenario from spec: B=1, C=2, E=3
+        // This leaves A, D, F as unknowns with multiple valid solutions
+        gameCore.values = { a: 0, b: 1, c: 2, d: 0, e: 3, f: 0 }; // A, D, F are placeholders
+        gameCore.hiddenFields = ['a', 'd', 'f'];
+
+        // Test first valid solution: A=2, D=3, F=6
+        const solution1 = { a: '2', d: '3', f: '6' };
+        const result1 = gameCore.validateAnswers(solution1);
+        test.expect(result1).toBe(true);
+
+        // Test second valid solution: A=5, D=6, F=9
+        const solution2 = { a: '5', d: '6', f: '9' };
+        const result2 = gameCore.validateAnswers(solution2);
+        test.expect(result2).toBe(true);
+
+        // Test an invalid solution: A=1, D=3, F=6 (violates A+B=D since 1+1≠3)
+        const invalidSolution = { a: '1', d: '3', f: '6' };
+        const invalidResult = gameCore.validateAnswers(invalidSolution);
+        test.expect(invalidResult).toBe(false);
+    });
+
+    test.it('should validate mathematical relationships for any hidden field combination', () => {
+        const gameCore = new NumberWallCore();
+
+        // Test scenario where A, B, F are hidden
+        gameCore.values = { a: 0, b: 0, c: 5, d: 7, e: 8, f: 0 };
+        gameCore.hiddenFields = ['a', 'b', 'f'];
+
+        // Find valid solution: A+B=7, B+5=8 → B=3, A=4, F=7+8=15
+        const validSolution = { a: '4', b: '3', f: '15' };
+        const result = gameCore.validateAnswers(validSolution);
+        test.expect(result).toBe(true);
+
+        // Test invalid solution where relationships don't hold
+        const invalidSolution = { a: '2', b: '3', f: '15' }; // 2+3≠7
+        const invalidResult = gameCore.validateAnswers(invalidSolution);
+        test.expect(invalidResult).toBe(false);
+    });
+
+    test.it('should reject solutions with invalid inputs', () => {
+        const gameCore = new NumberWallCore();
+
+        gameCore.values = { a: 0, b: 1, c: 2, d: 0, e: 3, f: 0 };
+        gameCore.hiddenFields = ['a', 'd', 'f'];
+
+        // Test solution with negative value
+        const negativeSolution = { a: '-1', d: '0', f: '3' };
+        const result = gameCore.validateAnswers(negativeSolution);
+        test.expect(result).toBe(false);
+
+        // Test solution with non-numeric input
+        const nonNumericSolution = { a: 'abc', d: '0', f: '3' };
+        const result2 = gameCore.validateAnswers(nonNumericSolution);
+        test.expect(result2).toBe(false);
+    });
+
+    test.it('should maintain backwards compatibility with non-ambiguous scenarios', () => {
+        const gameCore = new NumberWallCore();
+
+        // Set up a non-ambiguous scenario (original behavior should still work)
+        gameCore.values = { a: 5, b: 7, c: 3, d: 12, e: 10, f: 22 };
+        gameCore.hiddenFields = ['a', 'd', 'f'];
+
+        // Correct answers should still validate
+        const correctAnswers = { a: '5', d: '12', f: '22' };
+        const result1 = gameCore.validateAnswers(correctAnswers);
+        test.expect(result1).toBe(true);
+
+        // Incorrect answers should still be rejected
+        const incorrectAnswers = { a: '4', d: '12', f: '22' };
+        const result2 = gameCore.validateAnswers(incorrectAnswers);
+        test.expect(result2).toBe(false);
+    });
+});
+
 // Show final results
 test.showResults();
