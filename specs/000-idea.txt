@@ -1,6 +1,6 @@
 ## Overview
 
-A number wall is a mechanism to teach kids addition. The wall consists of 6
+Pyramid Puzzle Challenge is a math game that uses a number wall mechanism to teach kids addition. The wall consists of 6
 numbers A, B, C, D, E, F. The numbers are ordered like this:
 
       [   F   ]
@@ -19,7 +19,7 @@ then leave out 3 numbers, which the kid then needs to fill in.
 
 ## Goal
 
-We are going to implement math walls as an application I can run locally in my
+We are going to implement Pyramid Puzzle Challenge as an application I can run locally in my
 web browser. I just want to use the browser's capability of executing code
 embedded in a local HTML page. I do not want any server components or  remote
 connectivity.
