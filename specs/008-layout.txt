@@ -1,0 +1,10 @@
+Pyramiden-Puzzle-Challenge
++---------------+---------+
+|               | Outcome |
+|               +---------+
+| Brick         | Score   |
+| Container     | list    |
+|               +---------+
+|               | Config  |
+|               | opts    |
++---------------+---------+
