@@ -1,0 +1,12 @@
+{
+  "name": "pyramid-puzzle-challenge",
+  "version": "1.0.0",
+  "description": "A math game using number walls to teach kids addition",
+  "main": "game.js",
+  "scripts": {
+    "test": "node game.test.js"
+  },
+  "keywords": ["math", "education", "game", "addition"],
+  "author": "",
+  "license": "MIT"
+}

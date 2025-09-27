@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pyramid Puzzle Challenge - Tests</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        #output {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-size: 14px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Unit Tests for Pyramid Puzzle Challenge</h1>
+        <button onclick="runTests()">Run Tests</button>
+        <div id="output"></div>
+    </div>
+
+    <script src="game.js"></script>
+    <script src="test-framework.js"></script>
+    <script>
+        // Capture console output for display
+        const originalConsoleLog = console.log;
+        let testOutput = '';
+
+        console.log = function(...args) {
+            testOutput += args.join(' ') + '\n';
+            originalConsoleLog.apply(console, args);
+            document.getElementById('output').textContent = testOutput;
+        };
+
+        function runTests() {
+            testOutput = '';
+            test.results = { passed: 0, failed: 0, total: 0 };
+            document.getElementById('output').textContent = 'Running tests...\n';
+
+            // Small delay to allow UI update
+            setTimeout(() => {
+                loadTestsAndRun();
+            }, 100);
+        }
+
+        function loadTestsAndRun() {
+            // Load and run the tests
+            const script = document.createElement('script');
+            script.src = 'game.test.js';
+            script.onload = () => {
+                test.showResults();
+            };
+            document.head.appendChild(script);
+        }
+
+        // Auto-run tests on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(runTests, 500);
+        });
+    </script>
+</body>
+</html>
