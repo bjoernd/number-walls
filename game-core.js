@@ -7,7 +7,15 @@ class NumberWallCore {
     }
 
     generateRandomNumber() {
-        return Math.floor(Math.random() * 21); // 0 to 20
+        // Weighted random generation: reduce likelihood of 0
+        // 0 has ~2.4% chance (1/41), numbers 1-20 each have ~4.9% chance (2/41)
+        const weightedRandom = Math.floor(Math.random() * 41);
+
+        if (weightedRandom === 0) {
+            return 0; // Only 1 out of 41 chances for 0
+        } else {
+            return Math.floor((weightedRandom - 1) / 2) + 1; // Numbers 1-20, each with 2/41 chance
+        }
     }
 
     generateWall(attemptCount = 0) {

@@ -90,6 +90,36 @@ test.describe('NumberWallCore Class', () => {
         }
     });
 
+    test.it('should generate 0 less frequently than other numbers', () => {
+        gameCore = new NumberWallCore();
+        let zeroCount = 0;
+        let otherCounts = {};
+        const totalSamples = 2100; // Large sample for statistical significance
+
+        // Initialize counts for numbers 1-20
+        for (let i = 1; i <= 20; i++) {
+            otherCounts[i] = 0;
+        }
+
+        // Generate samples
+        for (let i = 0; i < totalSamples; i++) {
+            const randomNum = gameCore.generateRandomNumber();
+            if (randomNum === 0) {
+                zeroCount++;
+            } else {
+                otherCounts[randomNum]++;
+            }
+        }
+
+        // Calculate average count for non-zero numbers
+        const nonZeroCounts = Object.values(otherCounts);
+        const avgNonZeroCount = nonZeroCounts.reduce((sum, count) => sum + count, 0) / nonZeroCounts.length;
+
+        // 0 should appear significantly less than average of other numbers
+        // Expected: 0 appears ~2.4% (50 times), others ~4.8% (100 times each)
+        test.expect(zeroCount).toBeLessThanOrEqual(avgNonZeroCount * 0.7); // 0 should be at most 70% of average
+    });
+
     test.it('should calculate wall values correctly according to rules', () => {
         gameCore = new NumberWallCore();
         gameCore.values.a = 5;
