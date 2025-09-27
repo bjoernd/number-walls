@@ -228,6 +228,65 @@ The game features programmatically generated sound effects using the Web Audio A
 - **Method safety testing**: Ensures all sound methods handle disabled state correctly
 - **Cross-platform testing**: Verifies functionality in Node.js environment for unit tests
 
+## Layout System
+
+The game implements a modern three-column layout according to `specs/008-layout.txt` specification:
+
+### Layout Structure
+```
++---------------+---------+
+|               | Outcome |
+|               +---------+
+| Brick         | Score   |
+| Container     | list    |
+|               +---------+
+|               | Config  |
+|               | opts    |
++---------------+---------+
+```
+
+### Layout Components
+- **Brick Container** (left): Contains the number wall puzzle, takes majority of horizontal space (50%+ with flex: 1)
+- **Right Column** (280px fixed width): Three vertically stacked containers with 20px gaps
+  - **Outcome Container** (top): Displays feedback messages with animations
+  - **Score Container** (middle): Shows "Richtig:" and "Falsch:" counters
+  - **Config Container** (bottom): Contains sound toggle control
+
+### Layout Features
+- **Flexbox-based**: Uses CSS flexbox for responsive and aligned layout
+- **Perfect alignment**: Brick container spans from top of outcome box to bottom of config box
+- **Centered content**: Number wall puzzle is centered both horizontally and vertically within brick container
+- **Consistent styling**: All containers use matching rounded rectangle design with borders, shadows, and padding
+- **Responsive gaps**: 30px gap between main columns, 20px gaps between right column items
+
+### CSS Implementation
+- **`.game-layout`**: Main flex container with horizontal layout
+- **`.brick-container`**: Left container with `align-self: stretch` for height matching and `align-items: center` for content centering
+- **`.right-column`**: Fixed-width column with vertical flex layout
+- **Container styling**: Consistent background, borders, border-radius, padding, and box-shadow across all boxes
+
+## Message Persistence System
+
+The game features persistent feedback messaging that improves user experience:
+
+### Message Behavior
+- **Initial state**: Displays "Los geht's!" welcome message when game first loads
+- **Feedback persistence**: Success/failure messages remain visible until next evaluation
+- **Clean transitions**: Previous message is cleared only when new feedback is generated
+- **Continuous context**: Users can see their most recent performance while working on new puzzles
+
+### Implementation Details
+- **Welcome message**: German greeting "Los geht's!" appears in outcome container on page load
+- **Persistence logic**: `startGame()` method preserves existing messages instead of clearing them
+- **Message clearing**: Only occurs in `checkAnswers()` before displaying new feedback
+- **Animation integration**: Message persistence works seamlessly with existing animation system
+
+### User Experience Benefits
+- **Performance context**: Players maintain awareness of recent success/failure
+- **Reduced cognitive load**: No need to remember previous performance between puzzles
+- **Encouraging feedback**: Welcome message provides friendly start to game session
+- **Smooth transitions**: Natural flow from feedback to new puzzle without empty states
+
 ## Game Requirements
 
 - Numbers constrained to 0-20 range
