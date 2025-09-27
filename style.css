@@ -1,11 +1,18 @@
+body {
+    background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 50%, #fff3e0 100%);
+    min-height: 100vh;
+    margin: 0;
+    font-family: 'Georgia', 'Times New Roman', serif;
+}
+
 .game-title {
     text-align: center;
     font-family: 'Georgia', 'Times New Roman', serif;
     font-size: 64px;
     font-weight: bold;
     margin: 40px 0;
-    color: #2c3e50;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    color: #1a237e;
+    text-shadow: 2px 2px 4px rgba(26, 35, 126, 0.3);
     letter-spacing: 1px;
 }
 
@@ -28,11 +35,11 @@
 }
 
 .outcome-container {
-    background: #f8f9fa;
-    border: 3px solid #2c3e50;
+    background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+    border: 3px solid #3498db;
     border-radius: 12px;
     padding: 25px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 6px 12px rgba(52, 152, 219, 0.2);
     min-height: 100px;
     display: flex;
     align-items: center;
@@ -40,19 +47,19 @@
 }
 
 .score-container {
-    background: #f8f9fa;
-    border: 3px solid #2c3e50;
+    background: linear-gradient(135deg, #fff5ee, #ffeee6);
+    border: 3px solid #e67e22;
     border-radius: 12px;
     padding: 25px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 6px 12px rgba(230, 126, 34, 0.2);
 }
 
 .options-container {
-    background: #f8f9fa;
-    border: 3px solid #2c3e50;
+    background: linear-gradient(135deg, #f5f0ff, #ede7ff);
+    border: 3px solid #9b59b6;
     border-radius: 12px;
     padding: 25px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 6px 12px rgba(155, 89, 182, 0.2);
 }
 
 .score-item {
@@ -122,11 +129,11 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background: #f8f9fa;
-    border: 3px solid #2c3e50;
+    background: linear-gradient(135deg, #f0fff0, #e6ffe6);
+    border: 3px solid #27ae60;
     border-radius: 12px;
     padding: 25px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 6px 12px rgba(39, 174, 96, 0.2);
     flex: 1;
     min-width: 50%;
     align-self: stretch;
@@ -148,12 +155,16 @@
 .brick {
     width: 120px;
     height: 90px;
-    border: 3px solid black;
+    border: 3px solid #2c3e50;
+    background: linear-gradient(135deg, #ffffff, #f8f9fa);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 28px;
     font-weight: bold;
+    color: #2c3e50;
 }
 
 .brick input {
