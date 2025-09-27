@@ -8,7 +8,6 @@ class NumberWall extends NumberWallCore {
     }
 
     initializeElements() {
-        this.startBtn = document.getElementById('start-btn');
         this.checkBtn = document.getElementById('check-btn');
         this.message = document.getElementById('message');
         this.inputs = {
@@ -22,7 +21,6 @@ class NumberWall extends NumberWallCore {
     }
 
     setupEventListeners() {
-        this.startBtn.addEventListener('click', () => this.startGame());
         this.checkBtn.addEventListener('click', () => this.checkAnswers());
 
         // Add input validation to only allow numeric characters
@@ -61,7 +59,6 @@ class NumberWall extends NumberWallCore {
         this.displayWall();
 
         this.gameActive = true;
-        this.startBtn.disabled = true;
         this.checkBtn.disabled = false;
         this.message.textContent = '';
 
@@ -88,7 +85,6 @@ class NumberWall extends NumberWallCore {
 
         // Auto-start new game after 5 seconds
         setTimeout(() => {
-            this.startBtn.disabled = false;
             this.startGame();
         }, 5000);
     }
@@ -96,5 +92,6 @@ class NumberWall extends NumberWallCore {
 
 // Initialize the game when page loads
 document.addEventListener('DOMContentLoaded', () => {
-    new NumberWall();
+    const game = new NumberWall();
+    game.startGame();
 });
