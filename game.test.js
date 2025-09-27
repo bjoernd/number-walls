@@ -486,5 +486,69 @@ test.describe('High Score Functionality', () => {
     });
 });
 
+test.describe('German Localization', () => {
+    test.it('should return a valid correct message from German synonyms', () => {
+        const gameCore = new NumberWallCore();
+        const correctMessages = ['Gut', 'Super', 'Toll', 'Prima', 'Klasse', 'Genau'];
+
+        const message = gameCore.getRandomCorrectMessage();
+        test.expect(correctMessages).toContain(message);
+    });
+
+    test.it('should return a valid incorrect message from German synonyms', () => {
+        const gameCore = new NumberWallCore();
+        const incorrectMessages = ['Nee', 'Achwas', 'Stimmt nicht', 'Nicht ganz', 'Schau genauer hin'];
+
+        const message = gameCore.getRandomIncorrectMessage();
+        test.expect(incorrectMessages).toContain(message);
+    });
+
+    test.it('should return different messages when called multiple times', () => {
+        const gameCore = new NumberWallCore();
+        const messages = new Set();
+
+        // Generate 50 messages to increase likelihood of getting different ones
+        for (let i = 0; i < 50; i++) {
+            messages.add(gameCore.getRandomCorrectMessage());
+        }
+
+        // Should have at least 2 different messages (very likely with 50 attempts)
+        test.expect(messages.size).toBeGreaterThanOrEqual(2);
+    });
+
+    test.it('should return different incorrect messages when called multiple times', () => {
+        const gameCore = new NumberWallCore();
+        const messages = new Set();
+
+        // Generate 50 messages to increase likelihood of getting different ones
+        for (let i = 0; i < 50; i++) {
+            messages.add(gameCore.getRandomIncorrectMessage());
+        }
+
+        // Should have at least 2 different messages (very likely with 50 attempts)
+        test.expect(messages.size).toBeGreaterThanOrEqual(2);
+    });
+
+    test.it('should maintain original functionality with German messages', () => {
+        const gameCore = new NumberWallCore();
+
+        // Test that message methods don't interfere with core game logic
+        gameCore.values = { a: 5, b: 7, c: 3, d: 12, e: 10, f: 22 };
+        gameCore.hiddenFields = ['a', 'd', 'f'];
+
+        const userAnswers = { a: '5', d: '12', f: '22' };
+        const result = gameCore.validateAnswers(userAnswers);
+
+        test.expect(result).toBe(true);
+
+        // Verify messages can still be generated
+        const correctMsg = gameCore.getRandomCorrectMessage();
+        const incorrectMsg = gameCore.getRandomIncorrectMessage();
+
+        test.expect(typeof correctMsg).toBe('string');
+        test.expect(typeof incorrectMsg).toBe('string');
+    });
+});
+
 // Show final results
 test.showResults();

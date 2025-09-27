@@ -124,6 +124,18 @@ class NumberWallCore {
             wrong: this.wrongAnswers
         };
     }
+
+    getRandomCorrectMessage() {
+        const messages = ['Gut', 'Super', 'Toll', 'Prima', 'Klasse', 'Genau'];
+        const randomIndex = Math.floor(Math.random() * messages.length);
+        return messages[randomIndex];
+    }
+
+    getRandomIncorrectMessage() {
+        const messages = ['Nee', 'Achwas', 'Stimmt nicht', 'Nicht ganz', 'Schau genauer hin'];
+        const randomIndex = Math.floor(Math.random() * messages.length);
+        return messages[randomIndex];
+    }
 }
 
 // Export for Node.js

@@ -138,7 +138,7 @@ class NumberWall extends NumberWallCore {
             this.incrementWrongAnswers();
         }
 
-        this.message.textContent = allCorrect ? 'Right!' : 'Wrong!';
+        this.message.textContent = allCorrect ? this.getRandomCorrectMessage() : this.getRandomIncorrectMessage();
         this.message.style.color = allCorrect ? 'green' : 'red';
 
         // Update score display
