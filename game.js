@@ -8,7 +8,6 @@ class NumberWall extends NumberWallCore {
     }
 
     initializeElements() {
-        this.checkBtn = document.getElementById('check-btn');
         this.message = document.getElementById('message');
         this.inputs = {
             a: document.getElementById('a'),
@@ -21,12 +20,11 @@ class NumberWall extends NumberWallCore {
     }
 
     setupEventListeners() {
-        this.checkBtn.addEventListener('click', () => this.checkAnswers());
-
         // Add input validation to only allow numeric characters
         Object.values(this.inputs).forEach(input => {
             input.addEventListener('input', (e) => {
                 e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                this.checkIfAllFieldsFilled();
             });
 
             input.addEventListener('keypress', (e) => {
@@ -35,6 +33,20 @@ class NumberWall extends NumberWallCore {
                 }
             });
         });
+    }
+
+    checkIfAllFieldsFilled() {
+        if (!this.gameActive) return;
+
+        // Check if all hidden fields have values
+        const allFilled = this.hiddenFields.every(field => {
+            const value = this.inputs[field].value.trim();
+            return value !== '';
+        });
+
+        if (allFilled) {
+            this.checkAnswers();
+        }
     }
 
 
@@ -59,7 +71,6 @@ class NumberWall extends NumberWallCore {
         this.displayWall();
 
         this.gameActive = true;
-        this.checkBtn.disabled = false;
         this.message.textContent = '';
 
         // Focus on first empty field
@@ -81,7 +92,6 @@ class NumberWall extends NumberWallCore {
         this.message.style.color = allCorrect ? 'green' : 'red';
 
         this.gameActive = false;
-        this.checkBtn.disabled = true;
 
         // Auto-start new game after 5 seconds
         setTimeout(() => {
