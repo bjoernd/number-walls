@@ -1,0 +1,1 @@
+I wand to implement a highscore mechanism. We want to count right/wrong answers from the beginning (i.e., the page load) and track them as separate numbers on the right side of the page.

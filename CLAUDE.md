@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Pyramid Puzzle Challenge is a browser-based educational math game that teaches addition through "number walls" - pyramid structures where each brick's value equals the sum of the two bricks below it. The game generates random puzzles where players fill in missing numbers.
+Pyramiden-Puzzle-Challenge is a browser-based educational math game in German that teaches addition through "number walls" - pyramid structures where each brick's value equals the sum of the two bricks below it. The game generates random puzzles where players fill in missing numbers and tracks their performance with persistent scoring.
 
 ## Architecture
 
@@ -16,8 +16,8 @@ The codebase follows a clean separation of concerns:
 
 ### Key Classes
 
-- `NumberWall` (in `game.js`): Handles DOM manipulation, user interaction, and game flow
-- `NumberWallCore` (in `game-core.js`): Contains pure game logic for weighted number generation, validation, and mathematical rules
+- `NumberWall` (in `game.js`): Handles DOM manipulation, user interaction, game flow, and score display updates
+- `NumberWallCore` (in `game-core.js`): Contains pure game logic for weighted number generation, validation, mathematical rules, score tracking, and German message generation
 
 ### Mathematical Rules
 
@@ -52,7 +52,7 @@ Open `index.html` in a web browser - no build step required.
 - `style.css` - Game styling and layout
 - `game.js` - Browser-specific game implementation with DOM handling
 - `game-core.js` - Pure game logic for testing and potential reuse
-- `game.test.js` - Comprehensive unit tests (13 test cases including security and weighted random tests)
+- `game.test.js` - Comprehensive unit tests (30 test cases including security, weighted random, high score, and German localization tests)
 - `specs/000-idea.txt` - Original requirements and design decisions
 
 ## Testing Strategy
@@ -106,6 +106,57 @@ The game uses weighted random number generation to improve gameplay experience:
 - **Large sample validation** (2,100 samples) verifies weighted distribution
 - **Statistical significance testing** ensures 0 appears significantly less than other numbers
 - **Range validation** confirms all numbers remain within 0-20 bounds
+
+## High Score Tracking
+
+The game implements persistent score tracking throughout the session:
+
+### Score Management
+- **Right answers counter**: Tracks correct puzzle solutions from page load
+- **Wrong answers counter**: Tracks incorrect attempts from page load
+- **Persistent storage**: Counters persist for entire browser session
+- **Real-time updates**: Score display updates immediately after validation
+- **Location**: Score tracking logic in `NumberWallCore`, UI updates in `NumberWall`
+
+### Score Display
+- **Position**: Right side of game interface in styled container
+- **Labels**: German labels "Richtig:" and "Falsch:"
+- **Styling**: Consistent with game's visual theme using bordered containers
+- **Auto-update**: Automatically refreshes after each answer submission
+
+### Score Testing
+- **Initialization testing**: Verifies counters start at zero
+- **Increment testing**: Confirms correct counter updates for right/wrong answers
+- **Independence testing**: Ensures counters track separately without interference
+- **Persistence testing**: Validates score maintenance across multiple game rounds
+
+## German Localization
+
+The application provides a complete German language experience:
+
+### Static Text Translation
+- **Page title**: "Pyramiden-Puzzle-Herausforderung"
+- **Language attribute**: `lang="de"` for proper browser handling
+- **Score labels**: "Richtig:" (Right) and "Falsch:" (Wrong)
+- **Accessibility**: Proper German language metadata for screen readers
+
+### Dynamic Validation Messages
+- **Correct answer synonyms**: Random selection from "Gut", "Super", "Toll", "Prima", "Klasse", "Genau"
+- **Incorrect answer synonyms**: Random selection from "Nee", "Achwas", "Stimmt nicht", "Nicht ganz", "Schau genauer hin"
+- **Random selection**: Different message displayed each time for variety
+- **Integration**: Seamlessly integrated with existing validation flow
+
+### Localization Methods
+- **`getRandomCorrectMessage()`**: Returns random German positive feedback
+- **`getRandomIncorrectMessage()`**: Returns random German negative feedback
+- **Message variety**: 6 correct and 5 incorrect synonyms for engaging feedback
+- **Testing**: Comprehensive validation of message selection and variety
+
+### Localization Testing
+- **Message validity**: Verifies all returned messages are from defined synonym lists
+- **Randomness testing**: Confirms variety in message selection over multiple calls
+- **Integration testing**: Ensures localization doesn't break core game functionality
+- **Backwards compatibility**: Maintains all existing game logic while adding German features
 
 ## Game Requirements
 

@@ -1,0 +1,7 @@
+I would like to see any text on the website in German. Instead of Right say Richtig. Instead of Wrong say Falsch.
+
+For the validation feedback, I would actually like to use a list of synonyms and pick a random one every time.
+
+Synonyms for Richtig: Gut Super Toll Prima Klasse Genau
+Synonyms for Falsch: Nee Achwas "Stimmt nicht" "Nicht ganz" "Schau genauer hin"
+
