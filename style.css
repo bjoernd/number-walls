@@ -10,7 +10,7 @@ body {
     font-family: 'Georgia', 'Times New Roman', serif;
     font-size: 64px;
     font-weight: bold;
-    margin: 40px 0;
+    margin: 20px 0;
     color: #1a237e;
     text-shadow: 2px 2px 4px rgba(26, 35, 126, 0.3);
     letter-spacing: 1px;
@@ -19,7 +19,7 @@ body {
 .game-layout {
     display: flex;
     gap: 30px;
-    margin: 80px auto;
+    margin: 40px auto;
     max-width: 1000px;
     min-width: 820px;
     padding: 0 30px;
