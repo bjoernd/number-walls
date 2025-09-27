@@ -2,6 +2,8 @@
 
 A browser-based math game that teaches addition through number wall puzzles.
 
+![Game Screenshot](number-wall.png)
+
 ## How to Play
 
 1. Open `index.html` in your web browser
