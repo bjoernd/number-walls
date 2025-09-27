@@ -29,7 +29,13 @@ class NumberWall extends NumberWallCore {
                 let value = e.target.value.replace(/[^0-9]/g, '');
                 if (value.length > 2) value = value.slice(0, 2);
                 e.target.value = value;
-                this.checkIfAllFieldsFilled();
+
+                // Check if this was the 2nd digit entered and all fields are filled
+                if (value.length === 2) {
+                    this.checkIfAllFieldsFilledWithImmediate();
+                } else {
+                    this.checkIfAllFieldsFilled();
+                }
             });
 
             input.addEventListener('keypress', (e) => {
@@ -56,12 +62,109 @@ class NumberWall extends NumberWallCore {
         });
 
         if (allFilled) {
-            // Wait 500ms before validating to allow completion of 2-digit numbers
-            this.validationTimeout = setTimeout(() => {
+            // Get the last filled field to determine validation delay
+            const lastFilledField = this.getLastFilledField();
+            const lastValue = this.inputs[lastFilledField].value;
+
+            // Determine if we expect a 2-digit number for this field
+            const expects2Digits = this.expectsTwoDigits(lastFilledField);
+
+            if (!expects2Digits || lastValue.length === 2) {
+                // Validate immediately if we don't expect 2 digits or already have 2 digits
                 this.checkAnswers();
-                this.validationTimeout = null;
-            }, 500);
+            } else {
+                // Allow up to 1 second for 2-digit input, but validate immediately on 2nd digit
+                this.validationTimeout = setTimeout(() => {
+                    this.checkAnswers();
+                    this.validationTimeout = null;
+                }, 1000);
+            }
         }
+    }
+
+    checkIfAllFieldsFilledWithImmediate() {
+        if (!this.gameActive) return;
+
+        // Clear any existing timeout
+        if (this.validationTimeout) {
+            clearTimeout(this.validationTimeout);
+            this.validationTimeout = null;
+        }
+
+        // Check if all hidden fields have values
+        const allFilled = this.hiddenFields.every(field => {
+            const value = this.inputs[field].value.trim();
+            return value !== '';
+        });
+
+        if (allFilled) {
+            // Validate immediately since a 2nd digit was just entered
+            this.checkAnswers();
+        }
+    }
+
+    getLastFilledField() {
+        // Find the field that was filled last (highest input order)
+        let lastField = null;
+        for (const field of this.hiddenFields) {
+            const value = this.inputs[field].value.trim();
+            if (value !== '') {
+                lastField = field;
+            }
+        }
+        return lastField;
+    }
+
+    expectsTwoDigits(field) {
+        // Calculate the possible range for this field based on current known values
+        const possibleValues = this.getPossibleValuesForField(field);
+        return possibleValues.some(value => value >= 10);
+    }
+
+    getPossibleValuesForField(field) {
+        // Get current values (both known and user-entered)
+        const currentValues = {};
+        Object.keys(this.inputs).forEach(key => {
+            if (this.hiddenFields.includes(key)) {
+                const userValue = this.inputs[key].value.trim();
+                currentValues[key] = userValue !== '' ? parseInt(userValue) : null;
+            } else {
+                currentValues[key] = this.values[key];
+            }
+        });
+
+        const possibleValues = [];
+
+        // Try all possible values 0-20 for this field and see which ones create valid walls
+        for (let testValue = 0; testValue <= 20; testValue++) {
+            currentValues[field] = testValue;
+
+            // Check if this creates a valid number wall
+            if (this.isValidWallConfiguration(currentValues)) {
+                possibleValues.push(testValue);
+            }
+        }
+
+        return possibleValues;
+    }
+
+    isValidWallConfiguration(values) {
+        // Check if the current configuration satisfies the number wall equations
+        // A + B = D, B + C = E, D + E = F
+        const { a, b, c, d, e, f } = values;
+
+        // Only validate if we have enough values to check
+        if (a !== null && b !== null && d !== null) {
+            if (a + b !== d) return false;
+        }
+        if (b !== null && c !== null && e !== null) {
+            if (b + c !== e) return false;
+        }
+        if (d !== null && e !== null && f !== null) {
+            if (d + e !== f) return false;
+        }
+
+        return true;
     }
 
 
