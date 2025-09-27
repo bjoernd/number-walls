@@ -17,6 +17,7 @@
     position: absolute;
     top: 80px;
     right: 30px;
+    width: 190px;
     background: #f8f9fa;
     border: 3px solid #2c3e50;
     border-radius: 12px;
@@ -26,8 +27,9 @@
 
 .options-container {
     position: absolute;
-    top: 220px;
+    top: 280px;
     right: 30px;
+    width: 190px;
     background: #f8f9fa;
     border: 3px solid #2c3e50;
     border-radius: 12px;
