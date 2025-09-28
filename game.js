@@ -3,6 +3,7 @@ function getGameConstants() {
     const globalScope = (typeof window !== 'undefined') ? window : global;
     return {
         GAME_CONSTANTS: globalScope.GAME_CONSTANTS,
+        ANIMATION_CONSTANTS: globalScope.ANIMATION_CONSTANTS,
         PLATFORM_CONSTANTS: globalScope.PLATFORM_CONSTANTS,
         LOCALIZATION_CONSTANTS: globalScope.LOCALIZATION_CONSTANTS
     };
@@ -29,6 +30,7 @@ class NumberWall extends NumberWallCore {
         this.wrongScoreElement = document.getElementById('wrong-score');
         this.soundToggle = document.getElementById('sound-toggle');
         this.maxLimitInput = document.getElementById('max-limit');
+        this.maxLimitLabel = document.getElementById('max-limit-label');
         this.inputs = {
             a: document.getElementById('a'),
             b: document.getElementById('b'),
@@ -37,6 +39,40 @@ class NumberWall extends NumberWallCore {
             e: document.getElementById('e'),
             f: document.getElementById('f')
         };
+
+        // Set UI text from constants
+        this.setupUIText();
+
+        // Validate we have the expected number of fields
+        this.validateFieldCount();
+    }
+
+    setupUIText() {
+        const { LOCALIZATION_CONSTANTS } = getGameConstants();
+        const rangeUIText = LOCALIZATION_CONSTANTS?.RANGE_UI_TEXT || {
+            LABEL: 'Zahlen bis:',
+            PLACEHOLDER: '20'
+        };
+
+        // Set label text
+        if (this.maxLimitLabel) {
+            this.maxLimitLabel.textContent = rangeUIText.LABEL;
+        }
+
+        // Set placeholder text
+        if (this.maxLimitInput) {
+            this.maxLimitInput.placeholder = rangeUIText.PLACEHOLDER;
+        }
+    }
+
+    validateFieldCount() {
+        const { GAME_CONSTANTS } = getGameConstants();
+        const expectedCount = GAME_CONSTANTS?.TOTAL_FIELDS_COUNT || 6;
+        const actualCount = Object.keys(this.inputs).length;
+
+        if (actualCount !== expectedCount) {
+            console.warn(`Expected ${expectedCount} input fields, but found ${actualCount}. Game may not function correctly.`);
+        }
     }
 
     setupEventListeners() {
@@ -341,21 +377,27 @@ class NumberWall extends NumberWallCore {
             const input = this.inputs[field];
             const isCorrect = fieldResults[field];
 
+            // Get flash animation constants
+            const { GAME_CONSTANTS, ANIMATION_CONSTANTS } = getGameConstants();
+            const flashAnimations = ANIMATION_CONSTANTS?.INPUT_FLASH_ANIMATIONS || {
+                CORRECT: 'flash-correct',
+                INCORRECT: 'flash-incorrect'
+            };
+
             // Remove any existing animation classes
-            input.classList.remove('flash-correct', 'flash-incorrect');
+            input.classList.remove(flashAnimations.CORRECT, flashAnimations.INCORRECT);
 
             // Add appropriate animation class
             if (isCorrect) {
-                input.classList.add('flash-correct');
+                input.classList.add(flashAnimations.CORRECT);
             } else {
-                input.classList.add('flash-incorrect');
+                input.classList.add(flashAnimations.INCORRECT);
             }
 
             // Remove the animation class after animation completes
-            const { GAME_CONSTANTS } = getGameConstants();
             const animationDuration = GAME_CONSTANTS?.FLASH_ANIMATION_DURATION || 2000;
             setTimeout(() => {
-                input.classList.remove('flash-correct', 'flash-incorrect');
+                input.classList.remove(flashAnimations.CORRECT, flashAnimations.INCORRECT);
             }, animationDuration);
         }
 
