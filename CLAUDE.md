@@ -12,6 +12,7 @@ The codebase follows a clean separation of concerns:
 
 - **Browser UI Layer**: `index.html` (structure), `style.css` (styling), `game.js` (DOM interaction)
 - **Core Logic Layer**: `game-core.js` (pure game logic, DOM-independent)
+- **Configuration Layer**: `constants.js` (centralized configuration and magic numbers)
 - **Testing Layer**: `game.test.js` (unit tests for core logic)
 
 ### Key Classes
@@ -39,7 +40,7 @@ node game.test.js          # Run tests directly
 
 ### Code Quality
 ```bash
-node -c game-core.js && node -c game.js    # Validate JavaScript syntax
+node -c constants.js && node -c game-core.js && node -c game.js    # Validate JavaScript syntax
 ```
 
 **IMPORTANT**: Always run syntax validation before committing code changes.
@@ -51,9 +52,10 @@ Open `index.html` in a web browser - no build step required.
 
 - `index.html` - Main game interface
 - `style.css` - Game styling and layout
+- `constants.js` - Centralized configuration constants (dual Node.js/browser compatibility)
 - `game.js` - Browser-specific game implementation with DOM handling
 - `game-core.js` - Pure game logic for testing and potential reuse
-- `game.test.js` - Comprehensive unit tests (40 test cases including security, weighted random, high score, German localization, and sound functionality tests)
+- `game.test.js` - Comprehensive unit tests (41 test cases including security, weighted random, high score, German localization, and sound functionality tests)
 - `specs/000-idea.txt` - Original requirements and design decisions
 
 ## Testing Strategy
@@ -79,14 +81,14 @@ The application implements multiple layers of security protection:
 
 ### Input Validation
 - **Regex filtering**: `/[^0-9]/g` prevents non-numeric input
-- **Length protection**: Explicit 2-character limit in JavaScript (defense-in-depth beyond HTML maxlength)
-- **Location**: `game.js` setupEventListeners method
+- **Length protection**: MAX_INPUT_LENGTH (2) character limit in JavaScript (defense-in-depth beyond HTML maxlength)
+- **Location**: `game.js` setupEventListeners method using GAME_CONSTANTS
 
 ### Recursion Protection
-- **Attempt limit**: 100 iterations maximum in `generateWall()` method
-- **Fallback values**: Safe default numbers `{a:1, b:1, c:1, d:2, e:2, f:4}` if limit exceeded
+- **Attempt limit**: MAX_GENERATION_ATTEMPTS (100) iterations maximum in `generateWall()` method
+- **Fallback values**: FALLBACK_VALUES constant `{a:1, b:1, c:1, d:2, e:2, f:4}` if limit exceeded
 - **Purpose**: Prevents potential stack overflow in edge cases
-- **Location**: `game-core.js` generateWall method
+- **Location**: `game-core.js` generateWall method using GAME_CONSTANTS
 
 ### Security Testing
 - **Comprehensive test coverage** for all security features
@@ -98,15 +100,15 @@ The application implements multiple layers of security protection:
 The game uses weighted random number generation to improve gameplay experience:
 
 ### Weighted Distribution
-- **Number 0**: ~2.4% probability (1 out of 41 chances)
-- **Numbers 1-20**: ~4.9% probability each (2 out of 41 chances each)
+- **Number 0**: ZERO_WEIGHT (1) out of RANDOM_WEIGHT_TOTAL (81) probability (~1.2%)
+- **Numbers 1-20**: NON_ZERO_WEIGHT (4) out of RANDOM_WEIGHT_TOTAL (81) each (~4.9%)
 - **Purpose**: Reduces frequency of 0 to create more engaging mathematical challenges
-- **Implementation**: `generateRandomNumber()` method in `game-core.js`
+- **Implementation**: `generateRandomNumber()` method in `game-core.js` using GAME_CONSTANTS
 
 ### Statistical Testing
-- **Large sample validation** (2,100 samples) verifies weighted distribution
-- **Statistical significance testing** ensures 0 appears significantly less than other numbers
-- **Range validation** confirms all numbers remain within 0-20 bounds
+- **Large sample validation**: WEIGHTED_RANDOM_SAMPLE_SIZE (2,100) samples verifies weighted distribution
+- **Statistical significance testing**: STATISTICAL_THRESHOLD (0.7) ensures 0 appears significantly less than other numbers
+- **Range validation**: Confirms all numbers remain within MIN_NUMBER to MAX_NUMBER bounds
 
 ## High Score Tracking
 
@@ -142,10 +144,10 @@ The application provides a complete German language experience:
 - **Accessibility**: Proper German language metadata for screen readers
 
 ### Dynamic Validation Messages
-- **Correct answer synonyms**: Random selection from "Gut", "Super", "Toll", "Prima", "Klasse", "Genau", "Spitze", "Wunderbar", "Fantastisch", "Ausgezeichnet", "Cool", "Stark", "Mega", "Stimmt genau", "Bingo", "Das ist es", "Bravo", "Juhu", "Yay"
-- **Incorrect answer synonyms**: Random selection from "Nee", "Achwas", "Stimmt nicht", "Nicht ganz", "Schau genauer hin", "Auweia", "Huch", "Oje", "Nö", "Schade", "Quatsch", "Nix da", "Oha", "Ups", "So nicht", "Anders"
+- **Correct answer synonyms**: Random selection from CORRECT_MESSAGES constant (19 German positive phrases)
+- **Incorrect answer synonyms**: Random selection from INCORRECT_MESSAGES constant (16 German negative phrases)
 - **Random selection**: Different message displayed each time for variety
-- **Integration**: Seamlessly integrated with existing validation flow
+- **Integration**: Seamlessly integrated with existing validation flow using LOCALIZATION_CONSTANTS
 
 ### Localization Methods
 - **`getRandomCorrectMessage()`**: Returns random German positive feedback
@@ -171,10 +173,10 @@ The game features an exciting animated feedback system that displays messages wi
 - **CSS-powered**: Pure CSS animations with no JavaScript animation frameworks required
 
 ### Animation Classes
-- **Correct message animations**: `message-bounce-in`, `message-zoom-celebration`, `message-slide-sparkle`, `message-pulse-glow`, `message-flip-tada`
-- **Incorrect message animations**: `message-shake-fade`, `message-wobble-in`, `message-slide-gentle`, `message-pulse-soft`
+- **Correct message animations**: CORRECT_ANIMATIONS constant (5 celebration animation classes)
+- **Incorrect message animations**: INCORRECT_ANIMATIONS constant (4 gentle correction animation classes)
 - **Advanced effects**: Includes transforms, scaling, rotation, color transitions, and text-shadow effects
-- **Performance optimized**: Uses CSS transforms and animations for smooth 60fps performance
+- **Performance optimized**: Uses CSS transforms and animations for smooth 60fps performance using ANIMATION_CONSTANTS
 
 ### Animation Methods
 - **`getRandomCorrectAnimation()`**: Returns random CSS class for positive feedback animations
@@ -193,11 +195,11 @@ The game features an exciting animated feedback system that displays messages wi
 The game features programmatically generated sound effects using the Web Audio API for immersive audio feedback.
 
 ### Sound Features
-- **Correct answer sound**: Harmonized chime using C (523.25Hz) and E (659.25Hz) notes with 0.6-second duration
-- **Incorrect answer sound**: Gentle descending buzz from 220Hz to 180Hz over 0.4 seconds using triangle wave
-- **New game sound**: Rising sweep tone (440Hz → 880Hz → 660Hz) over 0.3 seconds
-- **User control**: Sound toggle button with speaker icon (🔊/🔇) in score area
-- **Zero file size impact**: All sounds generated algorithmically without audio files
+- **Correct answer sound**: Harmonized chime using NOTES constants (C5, E5, G5, C6) with configurable timing
+- **Incorrect answer sound**: Gentle descending wobble using NOTES constants (C4 → G3 → F3) with EFFECTS parameters
+- **New game sound**: Rising sweep tone using A4 frequency with NEW_GAME_DURATION timing
+- **User control**: Sound toggle using SOUND_ICONS constants (🔊/🔇) in score area
+- **Zero file size impact**: All sounds generated algorithmically using AUDIO_CONSTANTS
 
 ### Audio Architecture
 - **SoundManager class**: Encapsulates all audio functionality with clean API
@@ -276,10 +278,10 @@ The game features persistent feedback messaging that improves user experience:
 - **Continuous context**: Users can see their most recent performance while working on new puzzles
 
 ### Implementation Details
-- **Welcome message**: German greeting "Los geht's!" appears in outcome container on page load
+- **Welcome message**: WELCOME_MESSAGE constant ("Los geht's!") appears in outcome container on page load
 - **Persistence logic**: `startGame()` method preserves existing messages instead of clearing them
 - **Message clearing**: Only occurs in `checkAnswers()` before displaying new feedback
-- **Animation integration**: Message persistence works seamlessly with existing animation system
+- **Animation integration**: Message persistence works seamlessly with existing animation system using LOCALIZATION_CONSTANTS
 
 ### User Experience Benefits
 - **Performance context**: Players maintain awareness of recent success/failure
@@ -287,11 +289,83 @@ The game features persistent feedback messaging that improves user experience:
 - **Encouraging feedback**: Welcome message provides friendly start to game session
 - **Smooth transitions**: Natural flow from feedback to new puzzle without empty states
 
+## Constants Management System
+
+The codebase uses a centralized constants system to eliminate magic numbers and improve maintainability:
+
+### Architecture
+- **File**: `constants.js` with dual Node.js/browser compatibility
+- **Categories**: Game rules, audio parameters, animations, test configuration, localization, platform UI
+- **Loading**: Browser loads via script tag, Node.js uses require()
+- **Fallbacks**: All code includes fallback values for robustness
+
+### Constant Categories
+
+#### Game Constants (`GAME_CONSTANTS`)
+- **Number ranges**: MIN_NUMBER (0), MAX_NUMBER (20)
+- **Random generation**: RANDOM_WEIGHT_TOTAL (81), ZERO_WEIGHT (1), NON_ZERO_WEIGHT (4)
+- **Input limits**: MAX_INPUT_LENGTH (2), TWO_DIGIT_MIN (10), TWO_DIGIT_MAX (20)
+- **Security limits**: MAX_GENERATION_ATTEMPTS (100), MAX_FIELD_SELECTION_ATTEMPTS (100)
+- **Timing**: FEEDBACK_DISPLAY_DURATION (2000ms), TWO_DIGIT_INPUT_TIMEOUT (2500ms)
+- **Fallback values**: Safe defaults when generation fails `{a:1, b:1, c:1, d:2, e:2, f:4}`
+
+#### Audio Constants (`AUDIO_CONSTANTS`)
+- **Musical notes**: Frequency mappings (C4: 261.63Hz, A4: 440Hz, etc.)
+- **Timing**: Sound durations and attack/decay envelopes
+- **Volume levels**: Gain settings for different sound types
+- **Effects**: Wobble parameters, frequency modulation settings
+
+#### Animation Constants (`ANIMATION_CONSTANTS`)
+- **Correct animations**: 5 celebration animation class names
+- **Incorrect animations**: 4 gentle correction animation class names
+- **Input feedback**: Flash animation class names
+
+#### Test Constants (`TEST_CONSTANTS`)
+- **Sample sizes**: Statistical testing parameters (2100 samples)
+- **Iterations**: Performance test loop counts
+- **Thresholds**: Statistical significance levels
+
+#### Field Constants (`FIELD_CONSTANTS`)
+- **Game structure**: Field names array ['a', 'b', 'c', 'd', 'e', 'f']
+- **Forbidden combinations**: Sets of fields never hidden together
+- **Fallback selection**: Safe default field combination
+
+#### Localization Constants (`LOCALIZATION_CONSTANTS`)
+- **Message arrays**: German feedback messages (19 correct, 16 incorrect)
+- **UI text**: Welcome message, tooltips, labels
+
+#### Platform Constants (`PLATFORM_CONSTANTS`)
+- **Icons**: Sound on/off emoji characters
+- **CSS classes**: Styling class names for consistent UI
+
+### Implementation Benefits
+- **Maintainability**: Single location for all configuration values
+- **Consistency**: Eliminates duplicate magic numbers across files
+- **Testability**: Centralized test configuration parameters
+- **Flexibility**: Easy to adjust game balance and behavior
+- **Documentation**: Self-documenting constant names and organization
+
+### Usage Pattern
+```javascript
+// Robust pattern with fallbacks
+const constants = GAME_CONSTANTS || { MIN_NUMBER: 0, MAX_NUMBER: 20 };
+if (value < constants.MIN_NUMBER || value > constants.MAX_NUMBER) {
+    // Handle invalid range
+}
+```
+
+### Compatibility
+- **Browser**: Constants loaded globally via `<script src="constants.js">`
+- **Node.js**: Constants imported via `require('./constants.js')`
+- **Testing**: All tests use constants instead of magic numbers
+- **Backward compatibility**: Fallback values ensure code works if constants fail to load
+
 ## Game Requirements
 
-- Numbers constrained to 0-20 range
-- Exactly 3 fields hidden per puzzle
-- 2-second feedback display before auto-generating new puzzle
-- Input validation accepts only positive integers
+- Numbers constrained to MIN_NUMBER (0) to MAX_NUMBER (20) range
+- Exactly HIDDEN_FIELDS_COUNT (3) fields hidden per puzzle
+- FEEDBACK_DISPLAY_DURATION (2000ms) feedback display before auto-generating new puzzle
+- Input validation accepts only positive integers with MAX_INPUT_LENGTH (2) character limit
 - No server dependencies - runs entirely in browser
-- Before comitting, always check if CLAUDE.md needs an update and include this update in the commit if needed.
+- All configuration managed through constants.js for maintainability
+- Before committing, always check if CLAUDE.md needs an update and include this update in the commit if needed.
