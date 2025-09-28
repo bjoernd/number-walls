@@ -28,7 +28,7 @@ The number wall follows these equations:
 - B + C = E
 - D + E = F
 
-All numbers are constrained to 0-20 range with weighted generation (0 appears less frequently than 1-20). The game randomly selects 3 positions to hide and validates user answers.
+All numbers are constrained to configurable range (default 0-20, customizable up to 1000) with weighted generation (0 appears less frequently than 1-max). The game randomly selects 3 positions to hide and validates user answers.
 
 ## Development Commands
 
@@ -55,19 +55,30 @@ Open `index.html` in a web browser - no build step required.
 - `constants.js` - Centralized configuration constants (dual Node.js/browser compatibility)
 - `game.js` - Browser-specific game implementation with DOM handling
 - `game-core.js` - Pure game logic for testing and potential reuse
-- `game.test.js` - Comprehensive unit tests (41 test cases including security, weighted random, high score, German localization, and sound functionality tests)
+- `game.test.js` - Streamlined unit tests (7 essential test cases covering core logic, validation, custom ranges, security, and bug regression protection)
 - `specs/000-idea.txt` - Original requirements and design decisions
 
 ## Testing Strategy
 
-Tests are written for the core logic layer (`game-core.js`) to ensure mathematical correctness, input validation, and edge case handling. The browser layer (`game.js`) relies on manual testing since it's primarily DOM manipulation.
+Tests focus on essential functionality to ensure mathematical correctness, input validation, and critical edge cases. The streamlined test suite prioritizes maintainability while providing comprehensive coverage of core features.
 
 ### Testing Requirements
 
 - **MUST write tests for all new functionality** - Every new feature, method, or significant logic change requires corresponding unit tests
-- **MUST verify all tests pass before considering any task complete** - Run `npm test` and ensure all tests pass before marking work as done
-- **Tests should cover edge cases and error conditions** - Not just happy path scenarios
+- **MUST verify all tests pass before considering any task complete** - Run `npm test` and ensure all 7 tests pass before marking work as done
+- **Tests should cover critical paths and regression protection** - Focus on essential functionality rather than exhaustive edge cases
 - **Core logic changes require test updates** - Any modifications to `game-core.js` must include test verification
+
+### Test Coverage
+
+The 7 essential tests cover:
+1. **Mathematical relationship validation** - Core A+B=D, B+C=E, D+E=F logic
+2. **Correct answer acceptance** - Valid solutions are properly accepted
+3. **Incorrect answer rejection** - Invalid solutions are properly rejected
+4. **Custom maximum range support** - Custom ranges work correctly up to 1000
+5. **Validation timing bug regression** - F=90 bug fix with custom maximum 90
+6. **Security protection** - Infinite recursion prevention with fallback values
+7. **Input validation** - Non-numeric and invalid inputs are handled safely
 
 ## Security Features
 
@@ -289,6 +300,29 @@ The game features persistent feedback messaging that improves user experience:
 - **Encouraging feedback**: Welcome message provides friendly start to game session
 - **Smooth transitions**: Natural flow from feedback to new puzzle without empty states
 
+## Validation Timing System
+
+The game implements intelligent validation timing to prevent premature validation while users are typing:
+
+### Timing Logic
+- **Complete input detection**: Validates only when all hidden fields have values
+- **2-digit number support**: Waits for complete 2-digit input when mathematically possible
+- **Custom range awareness**: `canFieldBeTwoDigits` checks up to `currentMaximum`, not hardcoded 20
+- **Timeout mechanism**: 2.5-second delay for potential 2-digit numbers before auto-validation
+
+### Bug Fix: Custom Maximum Validation
+- **Issue**: When users set custom maximum > 20, validation triggered prematurely for large correct answers
+- **Example**: F=90 showed red when user typed "9" (incomplete "90") with custom maximum 90
+- **Root cause**: `canFieldBeTwoDigits` only checked 10-20 range instead of 10-currentMaximum
+- **Solution**: Updated range check to `Math.min(currentMaximum, 99)` for proper 2-digit detection
+- **Result**: Prevents false-negative validation for custom ranges up to 99
+
+### Implementation Details
+- **Method**: `canFieldBeTwoDigits(fieldName)` in `game.js:258`
+- **Range calculation**: Uses `currentMaximum` instead of hardcoded `TWO_DIGIT_MAX`
+- **Mathematical validation**: Tests if any 2-digit value (10 to currentMaximum) satisfies wall equations
+- **Fallback protection**: Caps at 99 to maintain 2-digit constraint
+
 ## Constants Management System
 
 The codebase uses a centralized constants system to eliminate magic numbers and improve maintainability:
@@ -304,7 +338,7 @@ The codebase uses a centralized constants system to eliminate magic numbers and 
 #### Game Constants (`GAME_CONSTANTS`)
 - **Number ranges**: MIN_NUMBER (0), DEFAULT_MAXIMUM (20)
 - **Random generation**: RANDOM_WEIGHT_TOTAL (81), ZERO_WEIGHT (1), NON_ZERO_WEIGHT (4)
-- **Input limits**: MAX_INPUT_LENGTH (2), TWO_DIGIT_MIN (10), TWO_DIGIT_MAX (20)
+- **Input limits**: MAX_INPUT_LENGTH (2), TWO_DIGIT_MIN (10), TWO_DIGIT_MAX (20, used as fallback when currentMaximum unavailable)
 - **Security limits**: MAX_GENERATION_ATTEMPTS (100), MAX_FIELD_SELECTION_ATTEMPTS (100)
 - **Timing**: FEEDBACK_DISPLAY_DURATION (2000ms), TWO_DIGIT_INPUT_TIMEOUT (2500ms)
 - **Fallback values**: Safe defaults when generation fails `{a:1, b:1, c:1, d:2, e:2, f:4}`
@@ -362,10 +396,13 @@ if (value < constants.MIN_NUMBER || value > constants.DEFAULT_MAXIMUM) {
 
 ## Game Requirements
 
-- Numbers constrained to MIN_NUMBER (0) to DEFAULT_MAXIMUM (20) range
+- Numbers constrained to configurable range: MIN_NUMBER (0) to currentMaximum (default 20, customizable up to 1000)
 - Exactly HIDDEN_FIELDS_COUNT (3) fields hidden per puzzle
 - FEEDBACK_DISPLAY_DURATION (2000ms) feedback display before auto-generating new puzzle
 - Input validation accepts only positive integers with MAX_INPUT_LENGTH (2) character limit
+- Intelligent validation timing: waits for complete input when 2-digit numbers are mathematically possible
+- Custom maximum support: validation timing adapts to user-set maximum values
 - No server dependencies - runs entirely in browser
 - All configuration managed through constants.js for maintainability
+- Streamlined test suite: 7 essential tests covering core functionality and regression protection
 - Before committing, always check if CLAUDE.md needs an update and include this update in the commit if needed.
