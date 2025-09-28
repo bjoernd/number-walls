@@ -282,7 +282,8 @@ class NumberWall extends NumberWallCore {
         // Test all 2-digit values to see if any work
         const { GAME_CONSTANTS } = getGameConstants();
         const minTwoDigit = GAME_CONSTANTS?.TWO_DIGIT_MIN || 10;
-        const maxTwoDigit = GAME_CONSTANTS?.TWO_DIGIT_MAX || 20;
+        // Use the current maximum instead of hardcoded TWO_DIGIT_MAX to support custom ranges
+        const maxTwoDigit = Math.min(this.currentMaximum || GAME_CONSTANTS?.DEFAULT_MAXIMUM || 20, 99); // Cap at 99 for 2-digit limit
         for (let testValue = minTwoDigit; testValue <= maxTwoDigit; testValue++) {
             currentValues[fieldName] = testValue;
             if (this.isValidPartialWall(currentValues)) {
