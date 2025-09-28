@@ -49,8 +49,41 @@ class NumberWallCore {
 
     selectHiddenFields() {
         const allFields = ['a', 'b', 'c', 'd', 'e', 'f'];
-        const shuffled = allFields.sort(() => 0.5 - Math.random());
-        this.hiddenFields = shuffled.slice(0, 3);
+
+        // Define forbidden combinations (sets of 3 fields that should never be hidden together)
+        const forbiddenCombinations = [
+            ['b', 'd', 'e'],  // Never hide B, D, and E together
+            ['a', 'd', 'f'],  // Never hide A, D, and F together
+            ['c', 'e', 'f']   // Never hide C, E, and F together
+        ];
+
+        let selectedFields;
+        let attempts = 0;
+        const maxAttempts = 100; // Prevent infinite loop
+
+        do {
+            const shuffled = allFields.sort(() => 0.5 - Math.random());
+            selectedFields = shuffled.slice(0, 3).sort(); // Sort for consistent comparison
+            attempts++;
+
+            if (attempts >= maxAttempts) {
+                // Fallback: use a safe combination if we can't find a valid one
+                selectedFields = ['a', 'b', 'c'];
+                break;
+            }
+        } while (this.isForbiddenCombination(selectedFields, forbiddenCombinations));
+
+        this.hiddenFields = selectedFields;
+    }
+
+    isForbiddenCombination(selectedFields, forbiddenCombinations) {
+        const sortedSelected = selectedFields.slice().sort();
+
+        return forbiddenCombinations.some(forbidden => {
+            const sortedForbidden = forbidden.slice().sort();
+            return sortedSelected.length === sortedForbidden.length &&
+                   sortedSelected.every((field, index) => field === sortedForbidden[index]);
+        });
     }
 
     validateAnswers(userAnswers) {

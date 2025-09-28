@@ -154,6 +154,36 @@ test.describe('NumberWallCore Class', () => {
         });
     });
 
+    test.it('should never select forbidden combinations', () => {
+        gameCore = new NumberWallCore();
+        // Test multiple generations to ensure forbidden combinations are avoided
+        for (let i = 0; i < 100; i++) {
+            gameCore.selectHiddenFields();
+            const sorted = gameCore.hiddenFields.slice().sort();
+
+            // Verify B, D, E are never all selected together
+            const isBDE = sorted.length === 3 &&
+                         sorted[0] === 'b' &&
+                         sorted[1] === 'd' &&
+                         sorted[2] === 'e';
+            test.expect(isBDE).toBe(false);
+
+            // Verify A, D, F are never all selected together
+            const isADF = sorted.length === 3 &&
+                         sorted[0] === 'a' &&
+                         sorted[1] === 'd' &&
+                         sorted[2] === 'f';
+            test.expect(isADF).toBe(false);
+
+            // Verify C, E, F are never all selected together
+            const isCEF = sorted.length === 3 &&
+                         sorted[0] === 'c' &&
+                         sorted[1] === 'e' &&
+                         sorted[2] === 'f';
+            test.expect(isCEF).toBe(false);
+        }
+    });
+
     test.it('should generate wall with all values within 0-20 range', () => {
         gameCore = new NumberWallCore();
 
