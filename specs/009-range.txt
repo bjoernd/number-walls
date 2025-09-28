@@ -1,0 +1,36 @@
+I would like to get an optional feature that allows the user to set the upper limit of the numbers selected. Keep using 20 as the default, but add a text box to the config section that the user can add another optional limit into. If the user enters such a limit, the limit should be applied from the next iteration of the game.
+
+## Specification Details
+
+### Input Validation
+- Only accept valid positive integers up to 1000
+- If invalid input is entered, use the most recently set limit (no change)
+- Invalid input includes: non-numbers, negative numbers, decimal numbers, empty values
+
+### Range Boundaries
+- Minimum valid value: 20 (cannot set limit below default)
+- Maximum valid value: 1000
+- Default value: 20 (current MAX_NUMBER constant)
+
+### User Interface
+- Text box should display the current limit value (20 by default)
+- Add appropriate label/description for the text box
+- Located in the config section (bottom right container)
+
+### Game State Handling
+- Changed limits apply from the next round/game iteration
+- Current puzzle continues with existing limit
+- No automatic game restart when limit changes
+
+### Persistence
+- Custom limit does not persist across browser sessions
+- Resets to default (20) when page reloads
+
+### Error Feedback
+- Use the existing feedback box (outcome container) to display validation error messages
+- Error message should explain why the input was rejected
+
+### Integration with Constants
+- Rename MAX_NUMBER to DEFAULT_MAXIMUM in constants
+- Text box value overrides the default maximum for number generation
+- Maintain backward compatibility with existing code

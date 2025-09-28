@@ -94,7 +94,7 @@ test.describe('NumberWallCore Class', () => {
         for (let i = 0; i < TEST_CONSTANTS.RANDOM_NUMBER_TEST_ITERATIONS; i++) {
             const randomNum = gameCore.generateRandomNumber();
             test.expect(randomNum).toBeGreaterThanOrEqual(GAME_CONSTANTS.MIN_NUMBER);
-            test.expect(randomNum).toBeLessThanOrEqual(GAME_CONSTANTS.MAX_NUMBER);
+            test.expect(randomNum).toBeLessThanOrEqual(GAME_CONSTANTS.DEFAULT_MAXIMUM);
         }
     });
 
@@ -105,7 +105,7 @@ test.describe('NumberWallCore Class', () => {
         const totalSamples = TEST_CONSTANTS.WEIGHTED_RANDOM_SAMPLE_SIZE; // Large sample for statistical significance
 
         // Initialize counts for numbers 1-max
-        for (let i = 1; i <= GAME_CONSTANTS.MAX_NUMBER; i++) {
+        for (let i = 1; i <= GAME_CONSTANTS.DEFAULT_MAXIMUM; i++) {
             otherCounts[i] = 0;
         }
 
@@ -200,17 +200,17 @@ test.describe('NumberWallCore Class', () => {
             gameCore.generateWall();
 
             test.expect(gameCore.values.a).toBeGreaterThanOrEqual(GAME_CONSTANTS.MIN_NUMBER);
-            test.expect(gameCore.values.a).toBeLessThanOrEqual(GAME_CONSTANTS.MAX_NUMBER);
+            test.expect(gameCore.values.a).toBeLessThanOrEqual(GAME_CONSTANTS.DEFAULT_MAXIMUM);
             test.expect(gameCore.values.b).toBeGreaterThanOrEqual(GAME_CONSTANTS.MIN_NUMBER);
-            test.expect(gameCore.values.b).toBeLessThanOrEqual(GAME_CONSTANTS.MAX_NUMBER);
+            test.expect(gameCore.values.b).toBeLessThanOrEqual(GAME_CONSTANTS.DEFAULT_MAXIMUM);
             test.expect(gameCore.values.c).toBeGreaterThanOrEqual(GAME_CONSTANTS.MIN_NUMBER);
-            test.expect(gameCore.values.c).toBeLessThanOrEqual(GAME_CONSTANTS.MAX_NUMBER);
+            test.expect(gameCore.values.c).toBeLessThanOrEqual(GAME_CONSTANTS.DEFAULT_MAXIMUM);
             test.expect(gameCore.values.d).toBeGreaterThanOrEqual(GAME_CONSTANTS.MIN_NUMBER);
-            test.expect(gameCore.values.d).toBeLessThanOrEqual(GAME_CONSTANTS.MAX_NUMBER);
+            test.expect(gameCore.values.d).toBeLessThanOrEqual(GAME_CONSTANTS.DEFAULT_MAXIMUM);
             test.expect(gameCore.values.e).toBeGreaterThanOrEqual(GAME_CONSTANTS.MIN_NUMBER);
-            test.expect(gameCore.values.e).toBeLessThanOrEqual(GAME_CONSTANTS.MAX_NUMBER);
+            test.expect(gameCore.values.e).toBeLessThanOrEqual(GAME_CONSTANTS.DEFAULT_MAXIMUM);
             test.expect(gameCore.values.f).toBeGreaterThanOrEqual(GAME_CONSTANTS.MIN_NUMBER);
-            test.expect(gameCore.values.f).toBeLessThanOrEqual(GAME_CONSTANTS.MAX_NUMBER);
+            test.expect(gameCore.values.f).toBeLessThanOrEqual(GAME_CONSTANTS.DEFAULT_MAXIMUM);
         }
     });
 
@@ -370,8 +370,8 @@ test.describe('Security Enhancements', () => {
 
             // All values should be within range
             test.expect(gameCore.values.a).toBeGreaterThanOrEqual(GAME_CONSTANTS.MIN_NUMBER);
-            test.expect(gameCore.values.a).toBeLessThanOrEqual(GAME_CONSTANTS.MAX_NUMBER);
-            test.expect(gameCore.values.f).toBeLessThanOrEqual(GAME_CONSTANTS.MAX_NUMBER);
+            test.expect(gameCore.values.a).toBeLessThanOrEqual(GAME_CONSTANTS.DEFAULT_MAXIMUM);
+            test.expect(gameCore.values.f).toBeLessThanOrEqual(GAME_CONSTANTS.DEFAULT_MAXIMUM);
 
             // Mathematical relationships should hold
             test.expect(gameCore.values.d).toBe(gameCore.values.a + gameCore.values.b);
@@ -734,6 +734,137 @@ test.describe('Sound Manager', () => {
 
         // No assertion needed - if we reach here without error, the test passes
         test.expect(true).toBe(true);
+    });
+});
+
+// Maximum Limit Functionality Tests
+test.describe('Maximum Limit Functionality', () => {
+    test.it('should generate numbers within custom maximum range', () => {
+        gameCore = new NumberWallCore();
+        const customMax = 50;
+
+        for (let i = 0; i < TEST_CONSTANTS.RANDOM_NUMBER_TEST_ITERATIONS; i++) {
+            const randomNum = gameCore.generateRandomNumber(customMax);
+            test.expect(randomNum).toBeGreaterThanOrEqual(GAME_CONSTANTS.MIN_NUMBER);
+            test.expect(randomNum).toBeLessThanOrEqual(customMax);
+        }
+    });
+
+    test.it('should generate numbers within default range when no custom maximum provided', () => {
+        gameCore = new NumberWallCore();
+
+        for (let i = 0; i < TEST_CONSTANTS.RANDOM_NUMBER_TEST_ITERATIONS; i++) {
+            const randomNum = gameCore.generateRandomNumber();
+            test.expect(randomNum).toBeGreaterThanOrEqual(GAME_CONSTANTS.MIN_NUMBER);
+            test.expect(randomNum).toBeLessThanOrEqual(GAME_CONSTANTS.DEFAULT_MAXIMUM);
+        }
+    });
+
+    test.it('should generate wall with custom maximum limit', () => {
+        gameCore = new NumberWallCore();
+        const customMax = 30;
+
+        for (let i = 0; i < TEST_CONSTANTS.GENERATION_TEST_ITERATIONS; i++) {
+            gameCore.generateWall(0, customMax);
+
+            // All values should be within the custom range
+            test.expect(gameCore.values.a).toBeGreaterThanOrEqual(GAME_CONSTANTS.MIN_NUMBER);
+            test.expect(gameCore.values.a).toBeLessThanOrEqual(customMax);
+            test.expect(gameCore.values.b).toBeGreaterThanOrEqual(GAME_CONSTANTS.MIN_NUMBER);
+            test.expect(gameCore.values.b).toBeLessThanOrEqual(customMax);
+            test.expect(gameCore.values.c).toBeGreaterThanOrEqual(GAME_CONSTANTS.MIN_NUMBER);
+            test.expect(gameCore.values.c).toBeLessThanOrEqual(customMax);
+            test.expect(gameCore.values.d).toBeLessThanOrEqual(customMax);
+            test.expect(gameCore.values.e).toBeLessThanOrEqual(customMax);
+            test.expect(gameCore.values.f).toBeLessThanOrEqual(customMax);
+
+            // Mathematical relationships should still hold
+            test.expect(gameCore.values.d).toBe(gameCore.values.a + gameCore.values.b);
+            test.expect(gameCore.values.e).toBe(gameCore.values.b + gameCore.values.c);
+            test.expect(gameCore.values.f).toBe(gameCore.values.d + gameCore.values.e);
+        }
+    });
+
+    test.it('should handle very high custom maximum limits', () => {
+        gameCore = new NumberWallCore();
+        const customMax = 500;
+
+        for (let i = 0; i < 10; i++) { // Fewer iterations for performance
+            gameCore.generateWall(0, customMax);
+
+            // Basic range validation
+            test.expect(gameCore.values.a).toBeLessThanOrEqual(customMax);
+            test.expect(gameCore.values.b).toBeLessThanOrEqual(customMax);
+            test.expect(gameCore.values.c).toBeLessThanOrEqual(customMax);
+            test.expect(gameCore.values.d).toBeLessThanOrEqual(customMax);
+            test.expect(gameCore.values.e).toBeLessThanOrEqual(customMax);
+            test.expect(gameCore.values.f).toBeLessThanOrEqual(customMax);
+
+            // Mathematical relationships should still hold
+            test.expect(gameCore.values.d).toBe(gameCore.values.a + gameCore.values.b);
+            test.expect(gameCore.values.e).toBe(gameCore.values.b + gameCore.values.c);
+            test.expect(gameCore.values.f).toBe(gameCore.values.d + gameCore.values.e);
+        }
+    });
+
+    test.it('should handle edge case: minimum allowed custom maximum (20)', () => {
+        gameCore = new NumberWallCore();
+        const customMax = GAME_CONSTANTS.MIN_CUSTOM_MAXIMUM || 20;
+
+        gameCore.generateWall(0, customMax);
+
+        // All values should be within range
+        test.expect(gameCore.values.a).toBeLessThanOrEqual(customMax);
+        test.expect(gameCore.values.b).toBeLessThanOrEqual(customMax);
+        test.expect(gameCore.values.c).toBeLessThanOrEqual(customMax);
+        test.expect(gameCore.values.d).toBeLessThanOrEqual(customMax);
+        test.expect(gameCore.values.e).toBeLessThanOrEqual(customMax);
+        test.expect(gameCore.values.f).toBeLessThanOrEqual(customMax);
+
+        // Mathematical relationships should still hold
+        test.expect(gameCore.values.d).toBe(gameCore.values.a + gameCore.values.b);
+        test.expect(gameCore.values.e).toBe(gameCore.values.b + gameCore.values.c);
+        test.expect(gameCore.values.f).toBe(gameCore.values.d + gameCore.values.e);
+    });
+
+    test.it('should maintain weighted random distribution with custom maximum', () => {
+        gameCore = new NumberWallCore();
+        const customMax = 100;
+        let zeroCount = 0;
+        let nonZeroCount = 0;
+        const sampleSize = 1000; // Smaller sample for performance
+
+        for (let i = 0; i < sampleSize; i++) {
+            const randomNum = gameCore.generateRandomNumber(customMax);
+            if (randomNum === 0) {
+                zeroCount++;
+            } else {
+                nonZeroCount++;
+            }
+        }
+
+        // Zero should appear significantly less frequently than other numbers
+        const zeroFrequency = zeroCount / sampleSize;
+        const averageNonZeroFrequency = nonZeroCount / (customMax * sampleSize);
+
+        // Zero frequency should be much lower than average frequency of other numbers
+        test.expect(zeroFrequency).toBeLessThanOrEqual(TEST_CONSTANTS.STATISTICAL_THRESHOLD * averageNonZeroFrequency);
+    });
+
+    test.it('should handle fallback correctly even with custom maximum', () => {
+        gameCore = new NumberWallCore();
+        const customMax = 2; // Very low maximum to force fallback
+
+        // This should trigger fallback due to impossible constraints
+        gameCore.generateWall(GAME_CONSTANTS.MAX_GENERATION_ATTEMPTS + 1, customMax);
+
+        // Should use fallback values
+        test.expect(gameCore.values.a).toBe(GAME_CONSTANTS.FALLBACK_VALUES.a);
+        test.expect(gameCore.values.b).toBe(GAME_CONSTANTS.FALLBACK_VALUES.b);
+        test.expect(gameCore.values.c).toBe(GAME_CONSTANTS.FALLBACK_VALUES.c);
+        test.expect(gameCore.values.d).toBe(GAME_CONSTANTS.FALLBACK_VALUES.d);
+        test.expect(gameCore.values.e).toBe(GAME_CONSTANTS.FALLBACK_VALUES.e);
+        test.expect(gameCore.values.f).toBe(GAME_CONSTANTS.FALLBACK_VALUES.f);
     });
 });
 

@@ -15,6 +15,10 @@ class NumberWall extends NumberWallCore {
         this.validationTimeout = null;
         this.soundManager = new SoundManager();
 
+        // Initialize current maximum limit
+        const { GAME_CONSTANTS } = getGameConstants();
+        this.currentMaximum = GAME_CONSTANTS?.DEFAULT_MAXIMUM || 20;
+
         this.initializeElements();
         this.setupEventListeners();
     }
@@ -24,6 +28,7 @@ class NumberWall extends NumberWallCore {
         this.rightScoreElement = document.getElementById('right-score');
         this.wrongScoreElement = document.getElementById('wrong-score');
         this.soundToggle = document.getElementById('sound-toggle');
+        this.maxLimitInput = document.getElementById('max-limit');
         this.inputs = {
             a: document.getElementById('a'),
             b: document.getElementById('b'),
@@ -63,6 +68,17 @@ class NumberWall extends NumberWallCore {
                 this.toggleSound();
             });
         }
+
+        // Add max limit input event listener
+        if (this.maxLimitInput) {
+            this.maxLimitInput.addEventListener('input', (e) => {
+                this.handleMaxLimitChange(e.target.value);
+            });
+
+            this.maxLimitInput.addEventListener('blur', (e) => {
+                this.validateMaxLimitInput(e.target.value);
+            });
+        }
     }
 
     toggleSound() {
@@ -88,6 +104,77 @@ class NumberWall extends NumberWallCore {
             this.soundToggle.classList.add(cssClasses.SOUND_OFF);
             this.soundToggle.title = tooltip;
         }
+    }
+
+    handleMaxLimitChange(value) {
+        // Filter out non-numeric characters during typing
+        const numericValue = value.replace(/[^0-9]/g, '');
+        if (numericValue !== value) {
+            this.maxLimitInput.value = numericValue;
+        }
+    }
+
+    validateMaxLimitInput(value) {
+        const { GAME_CONSTANTS, LOCALIZATION_CONSTANTS } = getGameConstants();
+        const constants = GAME_CONSTANTS || {
+            MIN_CUSTOM_MAXIMUM: 20,
+            MAX_CUSTOM_MAXIMUM: 1000,
+            DEFAULT_MAXIMUM: 20
+        };
+        const messages = LOCALIZATION_CONSTANTS?.RANGE_ERROR_MESSAGES || {
+            INVALID_NUMBER: 'Bitte gib eine gültige Zahl ein',
+            TOO_LOW: 'Minimum ist 20',
+            TOO_HIGH: 'Maximum ist 1000',
+            EMPTY_INPUT: 'Bitte gib eine Zahl ein'
+        };
+
+        // Handle empty input
+        if (!value || value.trim() === '') {
+            this.showRangeError(messages.EMPTY_INPUT);
+            this.maxLimitInput.value = this.currentMaximum.toString();
+            return;
+        }
+
+        const numericValue = parseInt(value);
+
+        // Validate numeric input
+        if (isNaN(numericValue)) {
+            this.showRangeError(messages.INVALID_NUMBER);
+            this.maxLimitInput.value = this.currentMaximum.toString();
+            return;
+        }
+
+        // Validate range
+        if (numericValue < constants.MIN_CUSTOM_MAXIMUM) {
+            this.showRangeError(messages.TOO_LOW);
+            this.maxLimitInput.value = this.currentMaximum.toString();
+            return;
+        }
+
+        if (numericValue > constants.MAX_CUSTOM_MAXIMUM) {
+            this.showRangeError(messages.TOO_HIGH);
+            this.maxLimitInput.value = this.currentMaximum.toString();
+            return;
+        }
+
+        // Valid input - update current maximum
+        this.currentMaximum = numericValue;
+        this.maxLimitInput.value = numericValue.toString();
+    }
+
+    showRangeError(message) {
+        // Temporarily show error message in the outcome container
+        const originalMessage = this.message.textContent;
+        const originalClass = this.message.className;
+
+        this.message.textContent = message;
+        this.message.className = 'message message-shake-fade';
+
+        // Restore original message after a short delay
+        setTimeout(() => {
+            this.message.textContent = originalMessage;
+            this.message.className = originalClass;
+        }, 2000);
     }
 
     handleInputChange(fieldName, value) {
@@ -192,7 +279,7 @@ class NumberWall extends NumberWallCore {
         // Check if values are in valid range
         const { GAME_CONSTANTS } = getGameConstants();
         const minNumber = GAME_CONSTANTS?.MIN_NUMBER || 0;
-        const maxNumber = GAME_CONSTANTS?.MAX_NUMBER || 20;
+        const maxNumber = this.currentMaximum || GAME_CONSTANTS?.DEFAULT_MAXIMUM || 20;
         for (const value of Object.values(values)) {
             if (value !== null && (value < minNumber || value > maxNumber)) {
                 return false;
@@ -220,7 +307,7 @@ class NumberWall extends NumberWallCore {
     }
 
     startGame() {
-        this.generateWall();
+        this.generateWall(0, this.currentMaximum);
         this.selectHiddenFields();
         this.displayWall();
 

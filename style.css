@@ -120,6 +120,29 @@ body {
     opacity: 0.5;
 }
 
+.limit-input {
+    background: white;
+    border: 2px solid var(--border-gray);
+    border-radius: 6px;
+    min-width: 45px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 20px;
+    color: var(--secondary-text);
+    padding: 5px 12px;
+    transition: all 0.2s ease;
+}
+
+.limit-input:focus {
+    outline: none;
+    border-color: #9b59b6;
+    background: #f9f9f9;
+}
+
+.limit-input:hover {
+    border-color: var(--secondary-text);
+}
+
 .brick-container {
     display: flex;
     flex-direction: column;

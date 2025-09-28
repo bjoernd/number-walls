@@ -108,7 +108,7 @@ The game uses weighted random number generation to improve gameplay experience:
 ### Statistical Testing
 - **Large sample validation**: WEIGHTED_RANDOM_SAMPLE_SIZE (2,100) samples verifies weighted distribution
 - **Statistical significance testing**: STATISTICAL_THRESHOLD (0.7) ensures 0 appears significantly less than other numbers
-- **Range validation**: Confirms all numbers remain within MIN_NUMBER to MAX_NUMBER bounds
+- **Range validation**: Confirms all numbers remain within MIN_NUMBER to DEFAULT_MAXIMUM bounds
 
 ## High Score Tracking
 
@@ -302,7 +302,7 @@ The codebase uses a centralized constants system to eliminate magic numbers and 
 ### Constant Categories
 
 #### Game Constants (`GAME_CONSTANTS`)
-- **Number ranges**: MIN_NUMBER (0), MAX_NUMBER (20)
+- **Number ranges**: MIN_NUMBER (0), DEFAULT_MAXIMUM (20)
 - **Random generation**: RANDOM_WEIGHT_TOTAL (81), ZERO_WEIGHT (1), NON_ZERO_WEIGHT (4)
 - **Input limits**: MAX_INPUT_LENGTH (2), TWO_DIGIT_MIN (10), TWO_DIGIT_MAX (20)
 - **Security limits**: MAX_GENERATION_ATTEMPTS (100), MAX_FIELD_SELECTION_ATTEMPTS (100)
@@ -348,8 +348,8 @@ The codebase uses a centralized constants system to eliminate magic numbers and 
 ### Usage Pattern
 ```javascript
 // Robust pattern with fallbacks
-const constants = GAME_CONSTANTS || { MIN_NUMBER: 0, MAX_NUMBER: 20 };
-if (value < constants.MIN_NUMBER || value > constants.MAX_NUMBER) {
+const constants = GAME_CONSTANTS || { MIN_NUMBER: 0, DEFAULT_MAXIMUM: 20 };
+if (value < constants.MIN_NUMBER || value > constants.DEFAULT_MAXIMUM) {
     // Handle invalid range
 }
 ```
@@ -362,7 +362,7 @@ if (value < constants.MIN_NUMBER || value > constants.MAX_NUMBER) {
 
 ## Game Requirements
 
-- Numbers constrained to MIN_NUMBER (0) to MAX_NUMBER (20) range
+- Numbers constrained to MIN_NUMBER (0) to DEFAULT_MAXIMUM (20) range
 - Exactly HIDDEN_FIELDS_COUNT (3) fields hidden per puzzle
 - FEEDBACK_DISPLAY_DURATION (2000ms) feedback display before auto-generating new puzzle
 - Input validation accepts only positive integers with MAX_INPUT_LENGTH (2) character limit

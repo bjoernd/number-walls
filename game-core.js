@@ -42,24 +42,31 @@ class NumberWallCore {
         this.wrongAnswers = 0;
     }
 
-    generateRandomNumber() {
+    generateRandomNumber(maxNumber = null) {
         const { GAME_CONSTANTS } = getConstants();
-        const constants = GAME_CONSTANTS || { RANDOM_WEIGHT_TOTAL: 81, ZERO_WEIGHT: 1, NON_ZERO_WEIGHT: 4, MIN_NUMBER: 0, MAX_NUMBER: 20 };
+        const constants = GAME_CONSTANTS || { RANDOM_WEIGHT_TOTAL: 81, ZERO_WEIGHT: 1, NON_ZERO_WEIGHT: 4, MIN_NUMBER: 0, DEFAULT_MAXIMUM: 20 };
+
+        const actualMax = maxNumber || constants.DEFAULT_MAXIMUM;
 
         // Weighted random generation: reduce likelihood of 0
-        // 0 has ~1.2% chance (1/81), numbers 1-20 each have ~4.9% chance (4/81)
-        const weightedRandom = Math.floor(Math.random() * constants.RANDOM_WEIGHT_TOTAL);
+        // 0 has ~1.2% chance (1/81), numbers 1-max each have equal probability
+        const totalNonZeroNumbers = actualMax - constants.MIN_NUMBER; // e.g., 20 for range 0-20
+        const adjustedWeightTotal = constants.ZERO_WEIGHT + (totalNonZeroNumbers * constants.NON_ZERO_WEIGHT);
+        const weightedRandom = Math.floor(Math.random() * adjustedWeightTotal);
 
         if (weightedRandom < constants.ZERO_WEIGHT) {
-            return constants.MIN_NUMBER; // Only 1 out of 81 chances for 0
+            return constants.MIN_NUMBER; // Only 1 out of total chances for 0
         } else {
-            return Math.floor((weightedRandom - constants.ZERO_WEIGHT) / constants.NON_ZERO_WEIGHT) + 1; // Numbers 1-20, each with 4/81 chance
+            const nonZeroIndex = Math.floor((weightedRandom - constants.ZERO_WEIGHT) / constants.NON_ZERO_WEIGHT);
+            return nonZeroIndex + 1; // Numbers 1 to actualMax, each with equal weight
         }
     }
 
-    generateWall(attemptCount = 0) {
+    generateWall(attemptCount = 0, maxNumber = null) {
         const { GAME_CONSTANTS } = getConstants();
-        const constants = GAME_CONSTANTS || { MAX_GENERATION_ATTEMPTS: 100, MAX_NUMBER: 20, FALLBACK_VALUES: { a: 1, b: 1, c: 1, d: 2, e: 2, f: 4 } };
+        const constants = GAME_CONSTANTS || { MAX_GENERATION_ATTEMPTS: 100, DEFAULT_MAXIMUM: 20, FALLBACK_VALUES: { a: 1, b: 1, c: 1, d: 2, e: 2, f: 4 } };
+
+        const actualMax = maxNumber || constants.DEFAULT_MAXIMUM;
 
         // Prevent infinite recursion with fallback values
         if (attemptCount > constants.MAX_GENERATION_ATTEMPTS) {
@@ -68,9 +75,9 @@ class NumberWallCore {
         }
 
         // Generate A, B, C randomly
-        this.values.a = this.generateRandomNumber();
-        this.values.b = this.generateRandomNumber();
-        this.values.c = this.generateRandomNumber();
+        this.values.a = this.generateRandomNumber(actualMax);
+        this.values.b = this.generateRandomNumber(actualMax);
+        this.values.c = this.generateRandomNumber(actualMax);
 
         // Calculate D, E, F based on rules
         this.values.d = this.values.a + this.values.b;
@@ -78,8 +85,8 @@ class NumberWallCore {
         this.values.f = this.values.d + this.values.e;
 
         // Ensure all values are within valid range
-        if (this.values.d > constants.MAX_NUMBER || this.values.e > constants.MAX_NUMBER || this.values.f > constants.MAX_NUMBER) {
-            this.generateWall(attemptCount + 1); // Regenerate with attempt counter
+        if (this.values.d > actualMax || this.values.e > actualMax || this.values.f > actualMax) {
+            this.generateWall(attemptCount + 1, maxNumber); // Regenerate with attempt counter
         }
     }
 

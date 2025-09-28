@@ -5,7 +5,7 @@
 const GAME_CONSTANTS = {
     // Number generation and validation
     MIN_NUMBER: 0,
-    MAX_NUMBER: 20,
+    DEFAULT_MAXIMUM: 20,
 
     // Weighted random generation
     RANDOM_WEIGHT_TOTAL: 81,
@@ -16,6 +16,10 @@ const GAME_CONSTANTS = {
     MAX_INPUT_LENGTH: 2,
     TWO_DIGIT_MIN: 10,
     TWO_DIGIT_MAX: 20,
+
+    // Custom range limits
+    MIN_CUSTOM_MAXIMUM: 20,
+    MAX_CUSTOM_MAXIMUM: 1000,
 
     // Security and performance limits
     MAX_GENERATION_ATTEMPTS: 100,
@@ -171,7 +175,21 @@ const LOCALIZATION_CONSTANTS = {
     ],
 
     WELCOME_MESSAGE: 'Los geht\'s!',
-    SOUND_TOGGLE_TOOLTIP: 'Sound ein/aus'
+    SOUND_TOGGLE_TOOLTIP: 'Sound ein/aus',
+
+    // Custom range error messages
+    RANGE_ERROR_MESSAGES: {
+        INVALID_NUMBER: 'Bitte gib eine gültige Zahl ein',
+        TOO_LOW: 'Minimum ist 20',
+        TOO_HIGH: 'Maximum ist 1000',
+        EMPTY_INPUT: 'Bitte gib eine Zahl ein'
+    },
+
+    // Custom range UI text
+    RANGE_UI_TEXT: {
+        LABEL: 'Zahlenbereich bis:',
+        PLACEHOLDER: '20'
+    }
 };
 
 // Browser/Platform Constants
