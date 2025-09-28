@@ -102,11 +102,11 @@ class NumberWall extends NumberWallCore {
                 // Only 1-digit numbers possible, validate immediately
                 this.checkAnswers();
             } else {
-                // 2-digit numbers possible, wait up to 1 second
+                // 2-digit numbers possible, wait up to 2.5 seconds for second digit
                 this.validationTimeout = setTimeout(() => {
                     this.checkAnswers();
                     this.validationTimeout = null;
-                }, 1000);
+                }, 2500);
             }
         }
     }
