@@ -165,7 +165,7 @@ body {
 }
 
 .brick {
-    width: 120px;
+    width: 140px;
     height: 90px;
     border: 3px solid var(--primary-text);
     background: linear-gradient(135deg, #ffffff, #f8f9fa);
@@ -180,7 +180,7 @@ body {
 }
 
 .brick input {
-    width: 100px;
+    width: 120px;
     height: 60px;
     text-align: center;
     font-size: 28px;

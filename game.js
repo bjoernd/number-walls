@@ -22,6 +22,7 @@ class NumberWall extends NumberWallCore {
 
         this.initializeElements();
         this.setupEventListeners();
+        this.updateInputMaxLengths(); // Set initial maxlength based on default maximum
     }
 
     initializeElements() {
@@ -196,6 +197,7 @@ class NumberWall extends NumberWallCore {
         // Valid input - update current maximum
         this.currentMaximum = numericValue;
         this.maxLimitInput.value = numericValue.toString();
+        this.updateInputMaxLengths(); // Update maxlength for new maximum
     }
 
     showRangeError(message) {
@@ -229,24 +231,24 @@ class NumberWall extends NumberWallCore {
         });
 
         if (allFilled) {
-            // If this field has max digits, validate immediately
-            const { GAME_CONSTANTS } = getGameConstants();
-            const maxLength = GAME_CONSTANTS?.MAX_INPUT_LENGTH || 2;
-            if (value.length === maxLength) {
+            const currentLength = value.length;
+            const maxDigits = this.getMaxDigitsForField(fieldName);
+
+            // If this field is at maximum possible digits, validate immediately
+            if (currentLength >= maxDigits) {
                 this.checkAnswers();
                 return;
             }
 
-            // If this field has 1 digit, check if 2-digit numbers are possible
-            const canBeTwoDigits = this.canFieldBeTwoDigits(fieldName);
+            // Check if field could have more digits than currently entered
+            const canHaveMoreDigits = this.canFieldHaveMoreDigits(fieldName, currentLength);
 
-            if (!canBeTwoDigits) {
-                // Only 1-digit numbers possible, validate immediately
+            if (!canHaveMoreDigits) {
+                // No valid values with more digits, validate immediately
                 this.checkAnswers();
             } else {
-                // 2-digit numbers possible, wait for second digit
-                const { GAME_CONSTANTS } = getGameConstants();
-                const timeout = GAME_CONSTANTS?.TWO_DIGIT_INPUT_TIMEOUT || 2500;
+                // More digits possible, wait with dynamic timeout
+                const timeout = this.getValidationTimeout(currentLength, maxDigits);
                 this.validationTimeout = setTimeout(() => {
                     this.checkAnswers();
                     this.validationTimeout = null;
@@ -294,6 +296,105 @@ class NumberWall extends NumberWallCore {
         return false;
     }
 
+    // NEW: Generalized multi-digit validation timing methods
+
+    getMaxDigitsForField(fieldName) {
+        // Determine maximum possible digits for this field based on current maximum
+        const maxPossibleValue = this.currentMaximum || 20;
+        return maxPossibleValue.toString().length;
+    }
+
+    canFieldHaveMoreDigits(fieldName, currentLength) {
+        // Check if field could have more digits than currently entered
+        const maxDigits = this.getMaxDigitsForField(fieldName);
+
+        if (currentLength >= maxDigits) {
+            return false; // Already at maximum possible digits
+        }
+
+        // Get current state for testing, excluding the field being checked
+        const currentValues = {};
+        Object.keys(this.inputs).forEach(key => {
+            if (this.hiddenFields.includes(key) && key !== fieldName) {
+                // For other hidden fields, use their current values
+                const userValue = this.inputs[key].value.trim();
+                if (userValue !== '') {
+                    currentValues[key] = parseInt(userValue);
+                } else {
+                    currentValues[key] = null;
+                }
+            } else if (!this.hiddenFields.includes(key)) {
+                // For visible fields, use the known values
+                currentValues[key] = this.values[key];
+            } else {
+                // For the field being checked, set to null (we'll test values)
+                currentValues[key] = null;
+            }
+        });
+
+        // Test if any values with more digits work
+        // For efficiency, calculate the mathematically required value instead of brute force
+        const { a, b, c, d, e, f } = currentValues;
+        let requiredValue = null;
+
+        // Calculate what this field should be based on mathematical relationships
+        if (fieldName === 'd' && a !== null && b !== null) {
+            requiredValue = a + b; // A + B = D
+        } else if (fieldName === 'e' && b !== null && c !== null) {
+            requiredValue = b + c; // B + C = E
+        } else if (fieldName === 'f' && d !== null && e !== null) {
+            requiredValue = d + e; // D + E = F
+        } else if (fieldName === 'a' && b !== null && d !== null) {
+            requiredValue = d - b; // A = D - B
+        } else if (fieldName === 'b' && a !== null && d !== null) {
+            requiredValue = d - a; // B = D - A
+        } else if (fieldName === 'b' && c !== null && e !== null) {
+            requiredValue = e - c; // B = E - C
+        } else if (fieldName === 'c' && b !== null && e !== null) {
+            requiredValue = e - b; // C = E - B
+        }
+
+        // If we can calculate the exact required value, check if it has more digits
+        if (requiredValue !== null && requiredValue >= Math.pow(10, currentLength) && requiredValue <= (this.currentMaximum || 20)) {
+            return true; // Required value has more digits and is in range
+        }
+
+        // Fallback: test digit levels if exact calculation isn't possible
+        const minValue = Math.pow(10, currentLength); // 10, 100, 1000, etc.
+        const maxValue = this.currentMaximum || 20;
+
+        // Test a sampling of values rather than all values for performance
+        const testSample = Math.min(50, maxValue - minValue + 1); // Test up to 50 values
+        const step = Math.max(1, Math.floor((maxValue - minValue) / testSample));
+
+        for (let testValue = minValue; testValue <= maxValue; testValue += step) {
+            currentValues[fieldName] = testValue;
+            if (this.isValidPartialWall(currentValues)) {
+                return true; // Found a valid value with more digits
+            }
+        }
+
+        return false; // No valid values with more digits
+    }
+
+    getValidationTimeout(currentLength, maxDigits) {
+        // Calculate dynamic timeout based on remaining possible digits
+        const remainingDigits = maxDigits - currentLength;
+
+        if (remainingDigits <= 0) {
+            return 0; // Validate immediately
+        }
+
+        const { GAME_CONSTANTS } = getGameConstants();
+        const timeoutPerDigit = GAME_CONSTANTS?.DIGIT_INPUT_TIMEOUT || 1000;
+
+        // Cap maximum timeout at reasonable limit
+        const maxTimeout = GAME_CONSTANTS?.TWO_DIGIT_INPUT_TIMEOUT || 2500;
+        const calculatedTimeout = remainingDigits * timeoutPerDigit;
+
+        return Math.min(calculatedTimeout, maxTimeout);
+    }
+
     isValidPartialWall(values) {
         // Check mathematical relationships where we have enough values
         const { a, b, c, d, e, f } = values;
@@ -326,7 +427,13 @@ class NumberWall extends NumberWallCore {
         return true;
     }
 
-
+    updateInputMaxLengths() {
+        // Update maxlength attribute based on current maximum value
+        const maxDigits = this.getMaxDigitsForField('a'); // All fields have same max digits
+        Object.keys(this.inputs).forEach(field => {
+            this.inputs[field].setAttribute('maxlength', maxDigits.toString());
+        });
+    }
 
     displayWall() {
         Object.keys(this.inputs).forEach(field => {
@@ -346,6 +453,7 @@ class NumberWall extends NumberWallCore {
     startGame() {
         this.generateWall(0, this.currentMaximum);
         this.selectHiddenFields();
+        this.updateInputMaxLengths(); // Update maxlength based on current maximum
         this.displayWall();
 
         this.gameActive = true;

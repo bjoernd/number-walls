@@ -13,9 +13,14 @@ const GAME_CONSTANTS = {
     NON_ZERO_WEIGHT: 4,
 
     // Input validation
-    MAX_INPUT_LENGTH: 2,
+    MAX_INPUT_LENGTH: 4,           // Increased to support up to 4-digit numbers (1000)
     TWO_DIGIT_MIN: 10,
     TWO_DIGIT_MAX: 20,
+
+    // Multi-digit validation timing (generalized)
+    MULTI_DIGIT_MIN: 10,           // Minimum multi-digit number
+    DIGIT_INPUT_TIMEOUT: 1000,     // Timeout per additional digit (ms)
+    MAX_DIGITS_SUPPORTED: 4,       // Maximum digits supported (for 1000+)
 
     // Custom range limits
     MIN_CUSTOM_MAXIMUM: 20,

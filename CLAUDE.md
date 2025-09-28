@@ -55,7 +55,7 @@ Open `index.html` in a web browser - no build step required.
 - `constants.js` - Centralized configuration constants (dual Node.js/browser compatibility)
 - `game.js` - Browser-specific game implementation with DOM handling
 - `game-core.js` - Pure game logic for testing and potential reuse
-- `game.test.js` - Streamlined unit tests (7 essential test cases covering core logic, validation, custom ranges, security, and bug regression protection)
+- `game.test.js` - Streamlined unit tests (8 essential test cases covering core logic, validation, custom ranges, multi-digit timing, security, and bug regression protection)
 - `specs/000-idea.txt` - Original requirements and design decisions
 
 ## Testing Strategy
@@ -65,20 +65,21 @@ Tests focus on essential functionality to ensure mathematical correctness, input
 ### Testing Requirements
 
 - **MUST write tests for all new functionality** - Every new feature, method, or significant logic change requires corresponding unit tests
-- **MUST verify all tests pass before considering any task complete** - Run `npm test` and ensure all 7 tests pass before marking work as done
+- **MUST verify all tests pass before considering any task complete** - Run `npm test` and ensure all 8 tests pass before marking work as done
 - **Tests should cover critical paths and regression protection** - Focus on essential functionality rather than exhaustive edge cases
 - **Core logic changes require test updates** - Any modifications to `game-core.js` must include test verification
 
 ### Test Coverage
 
-The 7 essential tests cover:
+The 8 essential tests cover:
 1. **Mathematical relationship validation** - Core A+B=D, B+C=E, D+E=F logic
 2. **Correct answer acceptance** - Valid solutions are properly accepted
 3. **Incorrect answer rejection** - Invalid solutions are properly rejected
 4. **Custom maximum range support** - Custom ranges work correctly up to 1000
-5. **Validation timing bug regression** - F=90 bug fix with custom maximum 90
-6. **Security protection** - Infinite recursion prevention with fallback values
-7. **Input validation** - Non-numeric and invalid inputs are handled safely
+5. **Multi-digit validation timing** - 3-digit numbers (e.g., F=280) validate correctly with high custom maximums
+6. **Validation timing bug regression** - F=90 bug fix with custom maximum 90
+7. **Security protection** - Infinite recursion prevention with fallback values
+8. **Input validation** - Non-numeric and invalid inputs are handled safely
 
 ## Security Features
 
@@ -306,22 +307,23 @@ The game implements intelligent validation timing to prevent premature validatio
 
 ### Timing Logic
 - **Complete input detection**: Validates only when all hidden fields have values
-- **2-digit number support**: Waits for complete 2-digit input when mathematically possible
-- **Custom range awareness**: `canFieldBeTwoDigits` checks up to `currentMaximum`, not hardcoded 20
-- **Timeout mechanism**: 2.5-second delay for potential 2-digit numbers before auto-validation
+- **Multi-digit number support**: Waits for complete multi-digit input when mathematically possible (up to 4 digits)
+- **Custom range awareness**: `canFieldHaveMoreDigits` adapts to `currentMaximum` (20-1000)
+- **Dynamic timeout**: Calculated based on remaining possible digits (1 second per additional digit, capped at 2.5 seconds)
 
-### Bug Fix: Custom Maximum Validation
-- **Issue**: When users set custom maximum > 20, validation triggered prematurely for large correct answers
-- **Example**: F=90 showed red when user typed "9" (incomplete "90") with custom maximum 90
-- **Root cause**: `canFieldBeTwoDigits` only checked 10-20 range instead of 10-currentMaximum
-- **Solution**: Updated range check to `Math.min(currentMaximum, 99)` for proper 2-digit detection
-- **Result**: Prevents false-negative validation for custom ranges up to 99
+### Multi-Digit Validation Enhancement
+- **Previous limitation**: Only supported 2-digit validation timing (hardcoded 10-99 range)
+- **New capability**: Supports 1-4 digit validation timing based on custom maximum (1-1000)
+- **Optimization**: Calculates mathematically required values instead of brute-force testing
+- **Dynamic timing**: Timeout adapts to number of remaining possible digits
 
 ### Implementation Details
-- **Method**: `canFieldBeTwoDigits(fieldName)` in `game.js:258`
-- **Range calculation**: Uses `currentMaximum` instead of hardcoded `TWO_DIGIT_MAX`
-- **Mathematical validation**: Tests if any 2-digit value (10 to currentMaximum) satisfies wall equations
-- **Fallback protection**: Caps at 99 to maintain 2-digit constraint
+- **Primary method**: `canFieldHaveMoreDigits(fieldName, currentLength)` in `game.js:305`
+- **Helper methods**: `getMaxDigitsForField(fieldName)`, `getValidationTimeout(currentLength, maxDigits)`
+- **Mathematical optimization**: Calculates exact required values using wall equations (A+B=D, B+C=E, D+E=F)
+- **Performance**: O(1) calculation instead of O(n) brute force testing
+- **Fallback**: Sampling method for cases where exact calculation isn't possible
+- **Legacy support**: Original `canFieldBeTwoDigits` method preserved for backward compatibility
 
 ## Constants Management System
 
@@ -399,10 +401,10 @@ if (value < constants.MIN_NUMBER || value > constants.DEFAULT_MAXIMUM) {
 - Numbers constrained to configurable range: MIN_NUMBER (0) to currentMaximum (default 20, customizable up to 1000)
 - Exactly HIDDEN_FIELDS_COUNT (3) fields hidden per puzzle
 - FEEDBACK_DISPLAY_DURATION (2000ms) feedback display before auto-generating new puzzle
-- Input validation accepts only positive integers with MAX_INPUT_LENGTH (2) character limit
-- Intelligent validation timing: waits for complete input when 2-digit numbers are mathematically possible
+- Input validation accepts only positive integers with MAX_INPUT_LENGTH (4) character limit to support up to 4-digit numbers
+- Intelligent validation timing: waits for complete input when multi-digit numbers are mathematically possible (up to 4 digits)
 - Custom maximum support: validation timing adapts to user-set maximum values
 - No server dependencies - runs entirely in browser
 - All configuration managed through constants.js for maintainability
-- Streamlined test suite: 7 essential tests covering core functionality and regression protection
+- Streamlined test suite: 8 essential tests covering core functionality, multi-digit timing, and regression protection
 - Before committing, always check if CLAUDE.md needs an update and include this update in the commit if needed.

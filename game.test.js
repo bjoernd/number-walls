@@ -104,6 +104,23 @@ test.describe('Core Game Logic', () => {
         test.expect(gameCore.values.e).toBeLessThanOrEqual(50);
         test.expect(gameCore.values.f).toBeLessThanOrEqual(50);
     });
+
+    test.it('should support multi-digit validation timing for high custom maximums', () => {
+        const gameCore = new NumberWallCore();
+
+        // Set up a scenario requiring 3-digit numbers
+        gameCore.values = { a: 123, b: 45, c: 67, d: 168, e: 112, f: 280 };
+        gameCore.hiddenFields = ['b', 'd', 'f'];
+
+        // Test that large answers validate correctly
+        const correctAnswers = { b: '45', d: '168', f: '280' };
+        test.expect(gameCore.validateAnswers(correctAnswers)).toBe(true);
+
+        const fieldResults = gameCore.validateIndividualAnswers(correctAnswers);
+        test.expect(fieldResults.b).toBe(true);
+        test.expect(fieldResults.d).toBe(true);
+        test.expect(fieldResults.f).toBe(true);
+    });
 });
 
 test.describe('Bug Fixes', () => {
