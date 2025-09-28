@@ -30,8 +30,9 @@ class NumberWall extends NumberWallCore {
             const input = this.inputs[fieldName];
 
             input.addEventListener('input', (e) => {
+                const maxLength = GAME_CONSTANTS?.MAX_INPUT_LENGTH || 2;
                 let value = e.target.value.replace(/[^0-9]/g, '');
-                if (value.length > 2) value = value.slice(0, 2);
+                if (value.length > maxLength) value = value.slice(0, maxLength);
                 e.target.value = value;
 
                 // Check if all fields are filled and determine validation timing
@@ -60,16 +61,20 @@ class NumberWall extends NumberWallCore {
         this.soundManager.setSoundEnabled(newState);
 
         // Update button appearance and content
+        const soundIcons = PLATFORM_CONSTANTS?.SOUND_ICONS || { ON: '🔊', OFF: '🔇' };
+        const cssClasses = PLATFORM_CONSTANTS?.CSS_CLASSES || { SOUND_ON: 'sound-on', SOUND_OFF: 'sound-off' };
+        const tooltip = LOCALIZATION_CONSTANTS?.SOUND_TOGGLE_TOOLTIP || 'Sound ein/aus';
+
         if (newState) {
-            this.soundToggle.textContent = '🔊';
-            this.soundToggle.classList.remove('sound-off');
-            this.soundToggle.classList.add('sound-on');
-            this.soundToggle.title = 'Sound ein/aus';
+            this.soundToggle.textContent = soundIcons.ON;
+            this.soundToggle.classList.remove(cssClasses.SOUND_OFF);
+            this.soundToggle.classList.add(cssClasses.SOUND_ON);
+            this.soundToggle.title = tooltip;
         } else {
-            this.soundToggle.textContent = '🔇';
-            this.soundToggle.classList.remove('sound-on');
-            this.soundToggle.classList.add('sound-off');
-            this.soundToggle.title = 'Sound ein/aus';
+            this.soundToggle.textContent = soundIcons.OFF;
+            this.soundToggle.classList.remove(cssClasses.SOUND_ON);
+            this.soundToggle.classList.add(cssClasses.SOUND_OFF);
+            this.soundToggle.title = tooltip;
         }
     }
 
@@ -89,8 +94,9 @@ class NumberWall extends NumberWallCore {
         });
 
         if (allFilled) {
-            // If this field has 2 digits, validate immediately
-            if (value.length === 2) {
+            // If this field has max digits, validate immediately
+            const maxLength = GAME_CONSTANTS?.MAX_INPUT_LENGTH || 2;
+            if (value.length === maxLength) {
                 this.checkAnswers();
                 return;
             }
@@ -102,11 +108,12 @@ class NumberWall extends NumberWallCore {
                 // Only 1-digit numbers possible, validate immediately
                 this.checkAnswers();
             } else {
-                // 2-digit numbers possible, wait up to 2.5 seconds for second digit
+                // 2-digit numbers possible, wait for second digit
+                const timeout = GAME_CONSTANTS?.TWO_DIGIT_INPUT_TIMEOUT || 2500;
                 this.validationTimeout = setTimeout(() => {
                     this.checkAnswers();
                     this.validationTimeout = null;
-                }, 2500);
+                }, timeout);
             }
         }
     }
@@ -135,8 +142,10 @@ class NumberWall extends NumberWallCore {
             }
         });
 
-        // Test all 2-digit values (10-20) to see if any work
-        for (let testValue = 10; testValue <= 20; testValue++) {
+        // Test all 2-digit values to see if any work
+        const minTwoDigit = GAME_CONSTANTS?.TWO_DIGIT_MIN || 10;
+        const maxTwoDigit = GAME_CONSTANTS?.TWO_DIGIT_MAX || 20;
+        for (let testValue = minTwoDigit; testValue <= maxTwoDigit; testValue++) {
             currentValues[fieldName] = testValue;
             if (this.isValidPartialWall(currentValues)) {
                 return true;
@@ -166,8 +175,10 @@ class NumberWall extends NumberWallCore {
         }
 
         // Check if values are in valid range
+        const minNumber = GAME_CONSTANTS?.MIN_NUMBER || 0;
+        const maxNumber = GAME_CONSTANTS?.MAX_NUMBER || 20;
         for (const value of Object.values(values)) {
-            if (value !== null && (value < 0 || value > 20)) {
+            if (value !== null && (value < minNumber || value > maxNumber)) {
                 return false;
             }
         }
@@ -238,9 +249,10 @@ class NumberWall extends NumberWallCore {
             }
 
             // Remove the animation class after animation completes
+            const animationDuration = GAME_CONSTANTS?.FLASH_ANIMATION_DURATION || 2000;
             setTimeout(() => {
                 input.classList.remove('flash-correct', 'flash-incorrect');
-            }, 2000);
+            }, animationDuration);
         }
 
         // Update score counters and play sounds
@@ -253,7 +265,8 @@ class NumberWall extends NumberWallCore {
         }
 
         // Clear any existing animation classes and previous message
-        this.message.className = 'message';
+        const baseMessageClass = PLATFORM_CONSTANTS?.CSS_CLASSES?.MESSAGE_BASE || 'message';
+        this.message.className = baseMessageClass;
         this.message.textContent = '';
 
         // Set new message text
@@ -268,11 +281,12 @@ class NumberWall extends NumberWallCore {
 
         this.gameActive = false;
 
-        // Auto-start new game after 2 seconds
+        // Auto-start new game after feedback display duration
+        const feedbackDuration = GAME_CONSTANTS?.FEEDBACK_DISPLAY_DURATION || 2000;
         setTimeout(() => {
             this.soundManager.playNewGameSound();
             this.startGame();
-        }, 2000);
+        }, feedbackDuration);
     }
 
     updateScoreDisplay() {
@@ -290,7 +304,9 @@ class NumberWall extends NumberWallCore {
 document.addEventListener('DOMContentLoaded', () => {
     const game = new NumberWall();
     // Set initial welcome message
-    game.message.textContent = 'Los geht\'s!';
-    game.message.className = 'message';
+    const welcomeMessage = LOCALIZATION_CONSTANTS?.WELCOME_MESSAGE || 'Los geht\'s!';
+    const baseMessageClass = PLATFORM_CONSTANTS?.CSS_CLASSES?.MESSAGE_BASE || 'message';
+    game.message.textContent = welcomeMessage;
+    game.message.className = baseMessageClass;
     game.startGame();
 });

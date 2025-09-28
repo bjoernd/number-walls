@@ -70,8 +70,16 @@ class TestFramework {
     }
 }
 
-// Import the core game logic
+// Import the core game logic and constants
 const { NumberWallCore, SoundManager, CORRECT_MESSAGES, INCORRECT_MESSAGES } = require('./game-core.js');
+const {
+    GAME_CONSTANTS,
+    AUDIO_CONSTANTS,
+    ANIMATION_CONSTANTS,
+    TEST_CONSTANTS,
+    FIELD_CONSTANTS,
+    LOCALIZATION_CONSTANTS
+} = require('./constants.js');
 
 // Initialize test framework
 const test = new TestFramework();
@@ -83,10 +91,10 @@ test.describe('NumberWallCore Class', () => {
     test.it('should generate random numbers between 0 and 20', () => {
         gameCore = new NumberWallCore();
 
-        for (let i = 0; i < 100; i++) {
+        for (let i = 0; i < TEST_CONSTANTS.RANDOM_NUMBER_TEST_ITERATIONS; i++) {
             const randomNum = gameCore.generateRandomNumber();
-            test.expect(randomNum).toBeGreaterThanOrEqual(0);
-            test.expect(randomNum).toBeLessThanOrEqual(20);
+            test.expect(randomNum).toBeGreaterThanOrEqual(GAME_CONSTANTS.MIN_NUMBER);
+            test.expect(randomNum).toBeLessThanOrEqual(GAME_CONSTANTS.MAX_NUMBER);
         }
     });
 
@@ -94,10 +102,10 @@ test.describe('NumberWallCore Class', () => {
         gameCore = new NumberWallCore();
         let zeroCount = 0;
         let otherCounts = {};
-        const totalSamples = 2100; // Large sample for statistical significance
+        const totalSamples = TEST_CONSTANTS.WEIGHTED_RANDOM_SAMPLE_SIZE; // Large sample for statistical significance
 
-        // Initialize counts for numbers 1-20
-        for (let i = 1; i <= 20; i++) {
+        // Initialize counts for numbers 1-max
+        for (let i = 1; i <= GAME_CONSTANTS.MAX_NUMBER; i++) {
             otherCounts[i] = 0;
         }
 
@@ -116,8 +124,8 @@ test.describe('NumberWallCore Class', () => {
         const avgNonZeroCount = nonZeroCounts.reduce((sum, count) => sum + count, 0) / nonZeroCounts.length;
 
         // 0 should appear significantly less than average of other numbers
-        // Expected: 0 appears ~1.2% (25 times), others ~4.9% (103 times each)
-        test.expect(zeroCount).toBeLessThanOrEqual(avgNonZeroCount * 0.7); // 0 should be at most 70% of average
+        // Expected: 0 appears less frequently than other numbers
+        test.expect(zeroCount).toBeLessThanOrEqual(avgNonZeroCount * TEST_CONSTANTS.STATISTICAL_THRESHOLD); // 0 should be at most threshold of average
     });
 
     test.it('should calculate wall values correctly according to rules', () => {
@@ -145,7 +153,7 @@ test.describe('NumberWallCore Class', () => {
 
     test.it('should select hidden fields from valid field names', () => {
         gameCore = new NumberWallCore();
-        const validFields = ['a', 'b', 'c', 'd', 'e', 'f'];
+        const validFields = FIELD_CONSTANTS.ALL_FIELDS;
 
         gameCore.selectHiddenFields();
 
@@ -157,7 +165,7 @@ test.describe('NumberWallCore Class', () => {
     test.it('should never select forbidden combinations', () => {
         gameCore = new NumberWallCore();
         // Test multiple generations to ensure forbidden combinations are avoided
-        for (let i = 0; i < 100; i++) {
+        for (let i = 0; i < TEST_CONSTANTS.FORBIDDEN_COMBINATION_TEST_ITERATIONS; i++) {
             gameCore.selectHiddenFields();
             const sorted = gameCore.hiddenFields.slice().sort();
 
@@ -188,28 +196,28 @@ test.describe('NumberWallCore Class', () => {
         gameCore = new NumberWallCore();
 
         // Test multiple generations to ensure consistency
-        for (let i = 0; i < 50; i++) {
+        for (let i = 0; i < TEST_CONSTANTS.GENERATION_TEST_ITERATIONS; i++) {
             gameCore.generateWall();
 
-            test.expect(gameCore.values.a).toBeGreaterThanOrEqual(0);
-            test.expect(gameCore.values.a).toBeLessThanOrEqual(20);
-            test.expect(gameCore.values.b).toBeGreaterThanOrEqual(0);
-            test.expect(gameCore.values.b).toBeLessThanOrEqual(20);
-            test.expect(gameCore.values.c).toBeGreaterThanOrEqual(0);
-            test.expect(gameCore.values.c).toBeLessThanOrEqual(20);
-            test.expect(gameCore.values.d).toBeGreaterThanOrEqual(0);
-            test.expect(gameCore.values.d).toBeLessThanOrEqual(20);
-            test.expect(gameCore.values.e).toBeGreaterThanOrEqual(0);
-            test.expect(gameCore.values.e).toBeLessThanOrEqual(20);
-            test.expect(gameCore.values.f).toBeGreaterThanOrEqual(0);
-            test.expect(gameCore.values.f).toBeLessThanOrEqual(20);
+            test.expect(gameCore.values.a).toBeGreaterThanOrEqual(GAME_CONSTANTS.MIN_NUMBER);
+            test.expect(gameCore.values.a).toBeLessThanOrEqual(GAME_CONSTANTS.MAX_NUMBER);
+            test.expect(gameCore.values.b).toBeGreaterThanOrEqual(GAME_CONSTANTS.MIN_NUMBER);
+            test.expect(gameCore.values.b).toBeLessThanOrEqual(GAME_CONSTANTS.MAX_NUMBER);
+            test.expect(gameCore.values.c).toBeGreaterThanOrEqual(GAME_CONSTANTS.MIN_NUMBER);
+            test.expect(gameCore.values.c).toBeLessThanOrEqual(GAME_CONSTANTS.MAX_NUMBER);
+            test.expect(gameCore.values.d).toBeGreaterThanOrEqual(GAME_CONSTANTS.MIN_NUMBER);
+            test.expect(gameCore.values.d).toBeLessThanOrEqual(GAME_CONSTANTS.MAX_NUMBER);
+            test.expect(gameCore.values.e).toBeGreaterThanOrEqual(GAME_CONSTANTS.MIN_NUMBER);
+            test.expect(gameCore.values.e).toBeLessThanOrEqual(GAME_CONSTANTS.MAX_NUMBER);
+            test.expect(gameCore.values.f).toBeGreaterThanOrEqual(GAME_CONSTANTS.MIN_NUMBER);
+            test.expect(gameCore.values.f).toBeLessThanOrEqual(GAME_CONSTANTS.MAX_NUMBER);
         }
     });
 
     test.it('should maintain mathematical relationships in generated wall', () => {
         gameCore = new NumberWallCore();
 
-        for (let i = 0; i < 20; i++) {
+        for (let i = 0; i < TEST_CONSTANTS.WALL_RELATIONSHIP_TEST_ITERATIONS; i++) {
             gameCore.generateWall();
 
             // Verify A + B = D
@@ -330,22 +338,22 @@ test.describe('Security Enhancements', () => {
         const gameCore = new NumberWallCore();
 
         // Force recursion limit by calling with high attempt count
-        gameCore.generateWall(101);
+        gameCore.generateWall(GAME_CONSTANTS.MAX_GENERATION_ATTEMPTS + 1);
 
         // Should use fallback values
-        test.expect(gameCore.values.a).toBe(1);
-        test.expect(gameCore.values.b).toBe(1);
-        test.expect(gameCore.values.c).toBe(1);
-        test.expect(gameCore.values.d).toBe(2);
-        test.expect(gameCore.values.e).toBe(2);
-        test.expect(gameCore.values.f).toBe(4);
+        test.expect(gameCore.values.a).toBe(GAME_CONSTANTS.FALLBACK_VALUES.a);
+        test.expect(gameCore.values.b).toBe(GAME_CONSTANTS.FALLBACK_VALUES.b);
+        test.expect(gameCore.values.c).toBe(GAME_CONSTANTS.FALLBACK_VALUES.c);
+        test.expect(gameCore.values.d).toBe(GAME_CONSTANTS.FALLBACK_VALUES.d);
+        test.expect(gameCore.values.e).toBe(GAME_CONSTANTS.FALLBACK_VALUES.e);
+        test.expect(gameCore.values.f).toBe(GAME_CONSTANTS.FALLBACK_VALUES.f);
     });
 
     test.it('should maintain mathematical relationships in fallback values', () => {
         const gameCore = new NumberWallCore();
 
         // Force fallback values
-        gameCore.generateWall(101);
+        gameCore.generateWall(GAME_CONSTANTS.MAX_GENERATION_ATTEMPTS + 1);
 
         // Verify mathematical relationships are correct
         test.expect(gameCore.values.d).toBe(gameCore.values.a + gameCore.values.b);
@@ -361,9 +369,9 @@ test.describe('Security Enhancements', () => {
             gameCore.generateWall();
 
             // All values should be within range
-            test.expect(gameCore.values.a).toBeGreaterThanOrEqual(0);
-            test.expect(gameCore.values.a).toBeLessThanOrEqual(20);
-            test.expect(gameCore.values.f).toBeLessThanOrEqual(20);
+            test.expect(gameCore.values.a).toBeGreaterThanOrEqual(GAME_CONSTANTS.MIN_NUMBER);
+            test.expect(gameCore.values.a).toBeLessThanOrEqual(GAME_CONSTANTS.MAX_NUMBER);
+            test.expect(gameCore.values.f).toBeLessThanOrEqual(GAME_CONSTANTS.MAX_NUMBER);
 
             // Mathematical relationships should hold
             test.expect(gameCore.values.d).toBe(gameCore.values.a + gameCore.values.b);
@@ -534,26 +542,26 @@ test.describe('German Localization', () => {
         const gameCore = new NumberWallCore();
         const messages = new Set();
 
-        // Generate 50 messages to increase likelihood of getting different ones
-        for (let i = 0; i < 50; i++) {
+        // Generate messages to increase likelihood of getting different ones
+        for (let i = 0; i < TEST_CONSTANTS.MESSAGE_DIVERSITY_ITERATIONS; i++) {
             messages.add(gameCore.getRandomCorrectMessage());
         }
 
-        // Should have at least 2 different messages (very likely with 50 attempts)
-        test.expect(messages.size).toBeGreaterThanOrEqual(2);
+        // Should have at least minimum expected diversity
+        test.expect(messages.size).toBeGreaterThanOrEqual(TEST_CONSTANTS.MIN_EXPECTED_DIVERSITY);
     });
 
     test.it('should return different incorrect messages when called multiple times', () => {
         const gameCore = new NumberWallCore();
         const messages = new Set();
 
-        // Generate 50 messages to increase likelihood of getting different ones
-        for (let i = 0; i < 50; i++) {
+        // Generate messages to increase likelihood of getting different ones
+        for (let i = 0; i < TEST_CONSTANTS.MESSAGE_DIVERSITY_ITERATIONS; i++) {
             messages.add(gameCore.getRandomIncorrectMessage());
         }
 
-        // Should have at least 2 different messages (very likely with 50 attempts)
-        test.expect(messages.size).toBeGreaterThanOrEqual(2);
+        // Should have at least minimum expected diversity
+        test.expect(messages.size).toBeGreaterThanOrEqual(TEST_CONSTANTS.MIN_EXPECTED_DIVERSITY);
     });
 
     test.it('should maintain original functionality with German messages', () => {
@@ -578,7 +586,7 @@ test.describe('German Localization', () => {
 
     test.it('should return valid animation classes for correct messages', () => {
         const gameCore = new NumberWallCore();
-        const validCorrectAnimations = ['message-bounce-in', 'message-zoom-celebration', 'message-slide-sparkle', 'message-pulse-glow', 'message-flip-tada'];
+        const validCorrectAnimations = ANIMATION_CONSTANTS.CORRECT_ANIMATIONS;
 
         const animation = gameCore.getRandomCorrectAnimation();
         test.expect(validCorrectAnimations).toContain(animation);
@@ -586,7 +594,7 @@ test.describe('German Localization', () => {
 
     test.it('should return valid animation classes for incorrect messages', () => {
         const gameCore = new NumberWallCore();
-        const validIncorrectAnimations = ['message-shake-fade', 'message-wobble-in', 'message-slide-gentle', 'message-pulse-soft'];
+        const validIncorrectAnimations = ANIMATION_CONSTANTS.INCORRECT_ANIMATIONS;
 
         const animation = gameCore.getRandomIncorrectAnimation();
         test.expect(validIncorrectAnimations).toContain(animation);
@@ -597,15 +605,15 @@ test.describe('German Localization', () => {
         const correctAnimations = new Set();
         const incorrectAnimations = new Set();
 
-        // Generate 30 animations to increase likelihood of getting different ones
-        for (let i = 0; i < 30; i++) {
+        // Generate animations to increase likelihood of getting different ones
+        for (let i = 0; i < TEST_CONSTANTS.ANIMATION_DIVERSITY_ITERATIONS; i++) {
             correctAnimations.add(gameCore.getRandomCorrectAnimation());
             incorrectAnimations.add(gameCore.getRandomIncorrectAnimation());
         }
 
-        // Should have at least 2 different animations (very likely with 30 attempts)
-        test.expect(correctAnimations.size).toBeGreaterThanOrEqual(2);
-        test.expect(incorrectAnimations.size).toBeGreaterThanOrEqual(2);
+        // Should have at least minimum expected diversity
+        test.expect(correctAnimations.size).toBeGreaterThanOrEqual(TEST_CONSTANTS.MIN_EXPECTED_DIVERSITY);
+        test.expect(incorrectAnimations.size).toBeGreaterThanOrEqual(TEST_CONSTANTS.MIN_EXPECTED_DIVERSITY);
     });
 });
 
