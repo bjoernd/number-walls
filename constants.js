@@ -187,7 +187,7 @@ const LOCALIZATION_CONSTANTS = {
 
     // Custom range UI text
     RANGE_UI_TEXT: {
-        LABEL: 'Zahlenbereich bis:',
+        LABEL: 'Zahlen bis:',
         PLACEHOLDER: '20'
     }
 };
