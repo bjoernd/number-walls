@@ -1,3 +1,13 @@
+// Helper function to get constants (same as in game-core.js)
+function getGameConstants() {
+    const globalScope = (typeof window !== 'undefined') ? window : global;
+    return {
+        GAME_CONSTANTS: globalScope.GAME_CONSTANTS,
+        PLATFORM_CONSTANTS: globalScope.PLATFORM_CONSTANTS,
+        LOCALIZATION_CONSTANTS: globalScope.LOCALIZATION_CONSTANTS
+    };
+}
+
 class NumberWall extends NumberWallCore {
     constructor() {
         super();
@@ -30,6 +40,7 @@ class NumberWall extends NumberWallCore {
             const input = this.inputs[fieldName];
 
             input.addEventListener('input', (e) => {
+                const { GAME_CONSTANTS } = getGameConstants();
                 const maxLength = GAME_CONSTANTS?.MAX_INPUT_LENGTH || 2;
                 let value = e.target.value.replace(/[^0-9]/g, '');
                 if (value.length > maxLength) value = value.slice(0, maxLength);
@@ -61,6 +72,7 @@ class NumberWall extends NumberWallCore {
         this.soundManager.setSoundEnabled(newState);
 
         // Update button appearance and content
+        const { PLATFORM_CONSTANTS, LOCALIZATION_CONSTANTS } = getGameConstants();
         const soundIcons = PLATFORM_CONSTANTS?.SOUND_ICONS || { ON: '🔊', OFF: '🔇' };
         const cssClasses = PLATFORM_CONSTANTS?.CSS_CLASSES || { SOUND_ON: 'sound-on', SOUND_OFF: 'sound-off' };
         const tooltip = LOCALIZATION_CONSTANTS?.SOUND_TOGGLE_TOOLTIP || 'Sound ein/aus';
@@ -95,6 +107,7 @@ class NumberWall extends NumberWallCore {
 
         if (allFilled) {
             // If this field has max digits, validate immediately
+            const { GAME_CONSTANTS } = getGameConstants();
             const maxLength = GAME_CONSTANTS?.MAX_INPUT_LENGTH || 2;
             if (value.length === maxLength) {
                 this.checkAnswers();
@@ -109,6 +122,7 @@ class NumberWall extends NumberWallCore {
                 this.checkAnswers();
             } else {
                 // 2-digit numbers possible, wait for second digit
+                const { GAME_CONSTANTS } = getGameConstants();
                 const timeout = GAME_CONSTANTS?.TWO_DIGIT_INPUT_TIMEOUT || 2500;
                 this.validationTimeout = setTimeout(() => {
                     this.checkAnswers();
@@ -143,6 +157,7 @@ class NumberWall extends NumberWallCore {
         });
 
         // Test all 2-digit values to see if any work
+        const { GAME_CONSTANTS } = getGameConstants();
         const minTwoDigit = GAME_CONSTANTS?.TWO_DIGIT_MIN || 10;
         const maxTwoDigit = GAME_CONSTANTS?.TWO_DIGIT_MAX || 20;
         for (let testValue = minTwoDigit; testValue <= maxTwoDigit; testValue++) {
@@ -175,6 +190,7 @@ class NumberWall extends NumberWallCore {
         }
 
         // Check if values are in valid range
+        const { GAME_CONSTANTS } = getGameConstants();
         const minNumber = GAME_CONSTANTS?.MIN_NUMBER || 0;
         const maxNumber = GAME_CONSTANTS?.MAX_NUMBER || 20;
         for (const value of Object.values(values)) {
@@ -249,6 +265,7 @@ class NumberWall extends NumberWallCore {
             }
 
             // Remove the animation class after animation completes
+            const { GAME_CONSTANTS } = getGameConstants();
             const animationDuration = GAME_CONSTANTS?.FLASH_ANIMATION_DURATION || 2000;
             setTimeout(() => {
                 input.classList.remove('flash-correct', 'flash-incorrect');
@@ -265,6 +282,7 @@ class NumberWall extends NumberWallCore {
         }
 
         // Clear any existing animation classes and previous message
+        const { PLATFORM_CONSTANTS } = getGameConstants();
         const baseMessageClass = PLATFORM_CONSTANTS?.CSS_CLASSES?.MESSAGE_BASE || 'message';
         this.message.className = baseMessageClass;
         this.message.textContent = '';
@@ -282,6 +300,7 @@ class NumberWall extends NumberWallCore {
         this.gameActive = false;
 
         // Auto-start new game after feedback display duration
+        const { GAME_CONSTANTS } = getGameConstants();
         const feedbackDuration = GAME_CONSTANTS?.FEEDBACK_DISPLAY_DURATION || 2000;
         setTimeout(() => {
             this.soundManager.playNewGameSound();
@@ -304,6 +323,7 @@ class NumberWall extends NumberWallCore {
 document.addEventListener('DOMContentLoaded', () => {
     const game = new NumberWall();
     // Set initial welcome message
+    const { LOCALIZATION_CONSTANTS, PLATFORM_CONSTANTS } = getGameConstants();
     const welcomeMessage = LOCALIZATION_CONSTANTS?.WELCOME_MESSAGE || 'Los geht\'s!';
     const baseMessageClass = PLATFORM_CONSTANTS?.CSS_CLASSES?.MESSAGE_BASE || 'message';
     game.message.textContent = welcomeMessage;

@@ -1,24 +1,38 @@
 // Core game logic separated from DOM dependencies for testing
 
-// Import shared constants
-let GAME_CONSTANTS, AUDIO_CONSTANTS, ANIMATION_CONSTANTS, FIELD_CONSTANTS, LOCALIZATION_CONSTANTS;
-
+// Import shared constants for Node.js environment
 if (typeof module !== 'undefined' && module.exports) {
-    // Node.js environment - require the constants
+    // Node.js environment - require the constants and set as globals
     const constants = require('./constants.js');
-    GAME_CONSTANTS = constants.GAME_CONSTANTS;
-    AUDIO_CONSTANTS = constants.AUDIO_CONSTANTS;
-    ANIMATION_CONSTANTS = constants.ANIMATION_CONSTANTS;
-    FIELD_CONSTANTS = constants.FIELD_CONSTANTS;
-    LOCALIZATION_CONSTANTS = constants.LOCALIZATION_CONSTANTS;
-} else {
-    // Browser environment - will be imported via script tag
-    // Constants will be available globally
+    global.GAME_CONSTANTS = constants.GAME_CONSTANTS;
+    global.AUDIO_CONSTANTS = constants.AUDIO_CONSTANTS;
+    global.ANIMATION_CONSTANTS = constants.ANIMATION_CONSTANTS;
+    global.FIELD_CONSTANTS = constants.FIELD_CONSTANTS;
+    global.LOCALIZATION_CONSTANTS = constants.LOCALIZATION_CONSTANTS;
+}
+// In browser environment, constants are already available as globals from constants.js
+
+// Helper function to get constants in both environments
+function getConstants() {
+    const globalScope = (typeof window !== 'undefined') ? window : global;
+    return {
+        GAME_CONSTANTS: globalScope.GAME_CONSTANTS,
+        AUDIO_CONSTANTS: globalScope.AUDIO_CONSTANTS,
+        ANIMATION_CONSTANTS: globalScope.ANIMATION_CONSTANTS,
+        FIELD_CONSTANTS: globalScope.FIELD_CONSTANTS,
+        LOCALIZATION_CONSTANTS: globalScope.LOCALIZATION_CONSTANTS
+    };
 }
 
-// Legacy constants for backward compatibility
-const CORRECT_MESSAGES = LOCALIZATION_CONSTANTS?.CORRECT_MESSAGES || ['Gut', 'Super', 'Toll', 'Prima', 'Klasse', 'Genau', 'Spitze', 'Wunderbar', 'Fantastisch', 'Ausgezeichnet', 'Cool', 'Stark', 'Mega', 'Stimmt genau', 'Bingo', 'Das ist es', 'Bravo', 'Juhu', 'Yay'];
-const INCORRECT_MESSAGES = LOCALIZATION_CONSTANTS?.INCORRECT_MESSAGES || ['Nee', 'Achwas', 'Stimmt nicht', 'Nicht ganz', 'Schau genauer hin', 'Auweia', 'Huch', 'Oje', 'Nö', 'Schade', 'Quatsch', 'Nix da', 'Oha', 'Ups', 'So nicht', 'Anders'];
+// Legacy constants for backward compatibility - get directly from globals to avoid naming conflicts
+const CORRECT_MESSAGES = (() => {
+    const { LOCALIZATION_CONSTANTS } = getConstants();
+    return LOCALIZATION_CONSTANTS?.CORRECT_MESSAGES || ['Gut', 'Super', 'Toll', 'Prima', 'Klasse', 'Genau', 'Spitze', 'Wunderbar', 'Fantastisch', 'Ausgezeichnet', 'Cool', 'Stark', 'Mega', 'Stimmt genau', 'Bingo', 'Das ist es', 'Bravo', 'Juhu', 'Yay'];
+})();
+const INCORRECT_MESSAGES = (() => {
+    const { LOCALIZATION_CONSTANTS } = getConstants();
+    return LOCALIZATION_CONSTANTS?.INCORRECT_MESSAGES || ['Nee', 'Achwas', 'Stimmt nicht', 'Nicht ganz', 'Schau genauer hin', 'Auweia', 'Huch', 'Oje', 'Nö', 'Schade', 'Quatsch', 'Nix da', 'Oha', 'Ups', 'So nicht', 'Anders'];
+})();
 
 class NumberWallCore {
     constructor() {
@@ -29,6 +43,7 @@ class NumberWallCore {
     }
 
     generateRandomNumber() {
+        const { GAME_CONSTANTS } = getConstants();
         const constants = GAME_CONSTANTS || { RANDOM_WEIGHT_TOTAL: 81, ZERO_WEIGHT: 1, NON_ZERO_WEIGHT: 4, MIN_NUMBER: 0, MAX_NUMBER: 20 };
 
         // Weighted random generation: reduce likelihood of 0
@@ -43,6 +58,7 @@ class NumberWallCore {
     }
 
     generateWall(attemptCount = 0) {
+        const { GAME_CONSTANTS } = getConstants();
         const constants = GAME_CONSTANTS || { MAX_GENERATION_ATTEMPTS: 100, MAX_NUMBER: 20, FALLBACK_VALUES: { a: 1, b: 1, c: 1, d: 2, e: 2, f: 4 } };
 
         // Prevent infinite recursion with fallback values
@@ -68,6 +84,7 @@ class NumberWallCore {
     }
 
     selectHiddenFields() {
+        const { FIELD_CONSTANTS, GAME_CONSTANTS } = getConstants();
         const fieldConstants = FIELD_CONSTANTS || {
             ALL_FIELDS: ['a', 'b', 'c', 'd', 'e', 'f'],
             FORBIDDEN_COMBINATIONS: [['b', 'd', 'e'], ['a', 'd', 'f'], ['c', 'e', 'f']],
@@ -114,6 +131,7 @@ class NumberWallCore {
         // Apply user answers to the test values
         for (const field of this.hiddenFields) {
             const userValue = parseInt(userAnswers[field]);
+            const { GAME_CONSTANTS } = getConstants();
             const constants = GAME_CONSTANTS || { MIN_NUMBER: 0 };
             // Validate input is a valid non-negative integer
             if (isNaN(userValue) || userValue < constants.MIN_NUMBER) {
@@ -149,6 +167,7 @@ class NumberWallCore {
         // Apply user answers to the test values
         for (const field of this.hiddenFields) {
             const userValue = parseInt(userAnswers[field]);
+            const { GAME_CONSTANTS } = getConstants();
             const constants = GAME_CONSTANTS || { MIN_NUMBER: 0 };
             // Validate input is a valid non-negative integer
             if (isNaN(userValue) || userValue < constants.MIN_NUMBER) {
@@ -213,12 +232,14 @@ class NumberWallCore {
     }
 
     getRandomCorrectAnimation() {
+        const { ANIMATION_CONSTANTS } = getConstants();
         const animations = ANIMATION_CONSTANTS?.CORRECT_ANIMATIONS || ['message-bounce-in', 'message-zoom-celebration', 'message-slide-sparkle', 'message-pulse-glow', 'message-flip-tada'];
         const randomIndex = Math.floor(Math.random() * animations.length);
         return animations[randomIndex];
     }
 
     getRandomIncorrectAnimation() {
+        const { ANIMATION_CONSTANTS } = getConstants();
         const animations = ANIMATION_CONSTANTS?.INCORRECT_ANIMATIONS || ['message-shake-fade', 'message-wobble-in', 'message-slide-gentle', 'message-pulse-soft'];
         const randomIndex = Math.floor(Math.random() * animations.length);
         return animations[randomIndex];
@@ -261,6 +282,7 @@ class SoundManager {
     createOscillatorWithEnvelope(frequency, type, duration, attackTime, decayTime) {
         if (!this.audioContext || !this.soundEnabled) return null;
 
+        const { AUDIO_CONSTANTS } = getConstants();
         const audioConstants = AUDIO_CONSTANTS || {
             TIMING: { ATTACK_TIME: 0.1, DECAY_TIME: 0.2 },
             VOLUME: { SUSTAIN_LEVEL: 0.3, ENVELOPE_START: 0.001 }
@@ -294,6 +316,7 @@ class SoundManager {
         if (!this.audioContext || !this.soundEnabled) return;
 
         this.ensureAudioContextResumed().then(() => {
+            const { AUDIO_CONSTANTS } = getConstants();
             const audioConstants = AUDIO_CONSTANTS || {
                 NOTES: { C5: 523.25, E5: 659.25, G5: 783.99, C6: 1046.5, E6: 1318.5, G6: 1568.0, C7: 2093.0 },
                 TIMING: { CORRECT_NOTE_DURATION: 0.15, CORRECT_FINAL_NOTE_DURATION: 0.3, CORRECT_SPARKLE_DURATION: 0.08, CORRECT_FINAL_SPARKLE_DURATION: 0.12 },
@@ -363,6 +386,7 @@ class SoundManager {
         if (!this.audioContext || !this.soundEnabled) return;
 
         this.ensureAudioContextResumed().then(() => {
+            const { AUDIO_CONSTANTS } = getConstants();
             const audioConstants = AUDIO_CONSTANTS || {
                 NOTES: { C4: 261.63, G3: 196.00, F3: 174.61, A4: 440.00, B4: 493.88 },
                 TIMING: { INCORRECT_MAIN_DURATION: 0.35, INCORRECT_BONK_DURATION: 0.08, INCORRECT_TRILL_DURATION: 0.07 },
@@ -451,6 +475,7 @@ class SoundManager {
         if (!this.audioContext || !this.soundEnabled) return;
 
         this.ensureAudioContextResumed().then(() => {
+            const { AUDIO_CONSTANTS } = getConstants();
             const audioConstants = AUDIO_CONSTANTS || {
                 NOTES: { A4: 440 },
                 TIMING: { NEW_GAME_DURATION: 0.3, NEW_GAME_SWEEP_MID: 0.15, ATTACK_TIME: 0.02, DECAY_TIME: 0.08 },
