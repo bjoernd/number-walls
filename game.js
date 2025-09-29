@@ -1,11 +1,13 @@
 // Helper function to get constants (same as in game-core.js)
-function getGameConstants() {
+function getConstants() {
     const globalScope = (typeof window !== 'undefined') ? window : global;
     return {
         GAME_CONSTANTS: globalScope.GAME_CONSTANTS,
+        AUDIO_CONSTANTS: globalScope.AUDIO_CONSTANTS,
         ANIMATION_CONSTANTS: globalScope.ANIMATION_CONSTANTS,
-        PLATFORM_CONSTANTS: globalScope.PLATFORM_CONSTANTS,
-        LOCALIZATION_CONSTANTS: globalScope.LOCALIZATION_CONSTANTS
+        FIELD_CONSTANTS: globalScope.FIELD_CONSTANTS,
+        LOCALIZATION_CONSTANTS: globalScope.LOCALIZATION_CONSTANTS,
+        PLATFORM_CONSTANTS: globalScope.PLATFORM_CONSTANTS
     };
 }
 
@@ -17,7 +19,7 @@ class NumberWall extends NumberWallCore {
         this.soundManager = new SoundManager();
 
         // Initialize current maximum limit
-        const { GAME_CONSTANTS } = getGameConstants();
+        const { GAME_CONSTANTS } = getConstants();
         this.currentMaximum = GAME_CONSTANTS?.DEFAULT_MAXIMUM || 20;
 
         this.initializeElements();
@@ -49,7 +51,7 @@ class NumberWall extends NumberWallCore {
     }
 
     setupUIText() {
-        const { LOCALIZATION_CONSTANTS } = getGameConstants();
+        const { LOCALIZATION_CONSTANTS } = getConstants();
         const rangeUIText = LOCALIZATION_CONSTANTS?.RANGE_UI_TEXT || {
             LABEL: 'Zahlen bis:',
             PLACEHOLDER: '20'
@@ -67,7 +69,7 @@ class NumberWall extends NumberWallCore {
     }
 
     validateFieldCount() {
-        const { GAME_CONSTANTS } = getGameConstants();
+        const { GAME_CONSTANTS } = getConstants();
         const expectedCount = GAME_CONSTANTS?.TOTAL_FIELDS_COUNT || 6;
         const actualCount = Object.keys(this.inputs).length;
 
@@ -82,7 +84,7 @@ class NumberWall extends NumberWallCore {
             const input = this.inputs[fieldName];
 
             input.addEventListener('input', (e) => {
-                const { GAME_CONSTANTS } = getGameConstants();
+                const { GAME_CONSTANTS } = getConstants();
                 const maxLength = GAME_CONSTANTS?.MAX_INPUT_LENGTH || 2;
                 let value = e.target.value.replace(/[^0-9]/g, '');
                 if (value.length > maxLength) value = value.slice(0, maxLength);
@@ -125,7 +127,7 @@ class NumberWall extends NumberWallCore {
         this.soundManager.setSoundEnabled(newState);
 
         // Update button appearance and content
-        const { PLATFORM_CONSTANTS, LOCALIZATION_CONSTANTS } = getGameConstants();
+        const { PLATFORM_CONSTANTS, LOCALIZATION_CONSTANTS } = getConstants();
         const soundIcons = PLATFORM_CONSTANTS?.SOUND_ICONS || { ON: '🔊', OFF: '🔇' };
         const cssClasses = PLATFORM_CONSTANTS?.CSS_CLASSES || { SOUND_ON: 'sound-on', SOUND_OFF: 'sound-off' };
         const tooltip = LOCALIZATION_CONSTANTS?.SOUND_TOGGLE_TOOLTIP || 'Sound ein/aus';
@@ -152,7 +154,7 @@ class NumberWall extends NumberWallCore {
     }
 
     validateMaxLimitInput(value) {
-        const { GAME_CONSTANTS, LOCALIZATION_CONSTANTS } = getGameConstants();
+        const { GAME_CONSTANTS, LOCALIZATION_CONSTANTS } = getConstants();
         const constants = GAME_CONSTANTS || {
             MIN_CUSTOM_MAXIMUM: 20,
             MAX_CUSTOM_MAXIMUM: 1000,
@@ -346,7 +348,7 @@ class NumberWall extends NumberWallCore {
             return 0; // Validate immediately
         }
 
-        const { GAME_CONSTANTS } = getGameConstants();
+        const { GAME_CONSTANTS } = getConstants();
         const timeoutPerDigit = GAME_CONSTANTS?.DIGIT_INPUT_TIMEOUT || 1000;
 
         // Cap maximum timeout at reasonable limit
@@ -376,7 +378,7 @@ class NumberWall extends NumberWallCore {
         }
 
         // Check if values are in valid range
-        const { GAME_CONSTANTS } = getGameConstants();
+        const { GAME_CONSTANTS } = getConstants();
         const minNumber = GAME_CONSTANTS?.MIN_NUMBER || 0;
         const maxNumber = this.currentMaximum || GAME_CONSTANTS?.DEFAULT_MAXIMUM || 20;
         for (const value of Object.values(values)) {
@@ -448,7 +450,7 @@ class NumberWall extends NumberWallCore {
             const isCorrect = fieldResults[field];
 
             // Get flash animation constants
-            const { GAME_CONSTANTS, ANIMATION_CONSTANTS } = getGameConstants();
+            const { GAME_CONSTANTS, ANIMATION_CONSTANTS } = getConstants();
             const flashAnimations = ANIMATION_CONSTANTS?.INPUT_FLASH_ANIMATIONS || {
                 CORRECT: 'flash-correct',
                 INCORRECT: 'flash-incorrect'
@@ -481,7 +483,7 @@ class NumberWall extends NumberWallCore {
         }
 
         // Clear any existing animation classes and previous message
-        const { PLATFORM_CONSTANTS } = getGameConstants();
+        const { PLATFORM_CONSTANTS } = getConstants();
         const baseMessageClass = PLATFORM_CONSTANTS?.CSS_CLASSES?.MESSAGE_BASE || 'message';
         this.message.className = baseMessageClass;
         this.message.textContent = '';
@@ -499,7 +501,7 @@ class NumberWall extends NumberWallCore {
         this.gameActive = false;
 
         // Auto-start new game after feedback display duration
-        const { GAME_CONSTANTS } = getGameConstants();
+        const { GAME_CONSTANTS } = getConstants();
         const feedbackDuration = GAME_CONSTANTS?.FEEDBACK_DISPLAY_DURATION || 2000;
         setTimeout(() => {
             this.soundManager.playNewGameSound();
@@ -522,7 +524,7 @@ class NumberWall extends NumberWallCore {
 document.addEventListener('DOMContentLoaded', () => {
     const game = new NumberWall();
     // Set initial welcome message
-    const { LOCALIZATION_CONSTANTS, PLATFORM_CONSTANTS } = getGameConstants();
+    const { LOCALIZATION_CONSTANTS, PLATFORM_CONSTANTS } = getConstants();
     const welcomeMessage = LOCALIZATION_CONSTANTS?.WELCOME_MESSAGE || 'Los geht\'s!';
     const baseMessageClass = PLATFORM_CONSTANTS?.CSS_CLASSES?.MESSAGE_BASE || 'message';
     game.message.textContent = welcomeMessage;

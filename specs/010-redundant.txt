@@ -68,8 +68,8 @@ Implementation Steps:
 Impact: Removes 8 lines of unused code and simplifies module exports.
 
 
-3. Consolidate Duplicate getConstants() Functions
---------------------------------------------------
+3. Consolidate Duplicate getConstants() Functions [COMPLETED]
+--------------------------------------------------------------
 Location:
 - game.js lines 1-10 (getGameConstants)
 - game-core.js lines 16-25 (getConstants)

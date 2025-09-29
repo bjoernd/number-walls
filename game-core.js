@@ -9,6 +9,7 @@ if (typeof module !== 'undefined' && module.exports) {
     global.ANIMATION_CONSTANTS = constants.ANIMATION_CONSTANTS;
     global.FIELD_CONSTANTS = constants.FIELD_CONSTANTS;
     global.LOCALIZATION_CONSTANTS = constants.LOCALIZATION_CONSTANTS;
+    global.PLATFORM_CONSTANTS = constants.PLATFORM_CONSTANTS;
 }
 // In browser environment, constants are already available as globals from constants.js
 
@@ -20,7 +21,8 @@ function getConstants() {
         AUDIO_CONSTANTS: globalScope.AUDIO_CONSTANTS,
         ANIMATION_CONSTANTS: globalScope.ANIMATION_CONSTANTS,
         FIELD_CONSTANTS: globalScope.FIELD_CONSTANTS,
-        LOCALIZATION_CONSTANTS: globalScope.LOCALIZATION_CONSTANTS
+        LOCALIZATION_CONSTANTS: globalScope.LOCALIZATION_CONSTANTS,
+        PLATFORM_CONSTANTS: globalScope.PLATFORM_CONSTANTS
     };
 }
 
