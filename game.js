@@ -261,6 +261,31 @@ class NumberWall extends NumberWallCore {
 
     // Multi-digit validation timing methods
 
+    buildCurrentValues(excludeField = null) {
+        // Build an object representing the current state of all fields
+        // Hidden fields use user input values, visible fields use known values
+        // The excluded field (if any) is set to null
+        const currentValues = {};
+        Object.keys(this.inputs).forEach(key => {
+            if (this.hiddenFields.includes(key) && key !== excludeField) {
+                // For other hidden fields, use their current values
+                const userValue = this.inputs[key].value.trim();
+                if (userValue !== '') {
+                    currentValues[key] = parseInt(userValue);
+                } else {
+                    currentValues[key] = null;
+                }
+            } else if (!this.hiddenFields.includes(key)) {
+                // For visible fields, use the known values
+                currentValues[key] = this.values[key];
+            } else {
+                // For the excluded field, set to null
+                currentValues[key] = null;
+            }
+        });
+        return currentValues;
+    }
+
     getMaxDigitsForField(fieldName) {
         // Determine maximum possible digits for this field based on current maximum
         const maxPossibleValue = this.currentMaximum || 20;
@@ -276,24 +301,7 @@ class NumberWall extends NumberWallCore {
         }
 
         // Get current state for testing, excluding the field being checked
-        const currentValues = {};
-        Object.keys(this.inputs).forEach(key => {
-            if (this.hiddenFields.includes(key) && key !== fieldName) {
-                // For other hidden fields, use their current values
-                const userValue = this.inputs[key].value.trim();
-                if (userValue !== '') {
-                    currentValues[key] = parseInt(userValue);
-                } else {
-                    currentValues[key] = null;
-                }
-            } else if (!this.hiddenFields.includes(key)) {
-                // For visible fields, use the known values
-                currentValues[key] = this.values[key];
-            } else {
-                // For the field being checked, set to null (we'll test values)
-                currentValues[key] = null;
-            }
-        });
+        const currentValues = this.buildCurrentValues(fieldName);
 
         // Test if any values with more digits work
         // For efficiency, calculate the mathematically required value instead of brute force
