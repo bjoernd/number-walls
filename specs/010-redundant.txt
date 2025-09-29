@@ -163,8 +163,8 @@ number of places to refactor.
 Impact: Reduces ~50 lines of duplicated logic across 2-3 methods.
 
 
-5. Centralize Constants Retrieval Pattern
-------------------------------------------
+5. Centralize Constants Retrieval Pattern [SKIPPED]
+----------------------------------------------------
 Location: Throughout game.js and game-core.js (30+ occurrences)
 
 Description:
@@ -204,8 +204,8 @@ extensive changes (30+ locations).
 LOW PRIORITY ITEMS
 ==================
 
-6. Consider Extracting Input Field Iteration Patterns
-------------------------------------------------------
+6. Consider Extracting Input Field Iteration Patterns [SKIPPED]
+----------------------------------------------------------------
 Location: Multiple methods in game.js
 
 Description:
