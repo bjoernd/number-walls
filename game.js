@@ -257,46 +257,7 @@ class NumberWall extends NumberWallCore {
         }
     }
 
-    canFieldBeTwoDigits(fieldName) {
-        // Check if any 2-digit values (10-20) could work for this field
-        // IMPORTANT: Ignore the current partial input for the field being checked
-
-        // Get current state, but exclude the field we're checking
-        const currentValues = {};
-        Object.keys(this.inputs).forEach(key => {
-            if (this.hiddenFields.includes(key) && key !== fieldName) {
-                // For other hidden fields, use their current values
-                const userValue = this.inputs[key].value.trim();
-                if (userValue !== '') {
-                    currentValues[key] = parseInt(userValue);
-                } else {
-                    currentValues[key] = null;
-                }
-            } else if (!this.hiddenFields.includes(key)) {
-                // For visible fields, use the known values
-                currentValues[key] = this.values[key];
-            } else {
-                // For the field being checked, set to null (we'll test values)
-                currentValues[key] = null;
-            }
-        });
-
-        // Test all 2-digit values to see if any work
-        const { GAME_CONSTANTS } = getGameConstants();
-        const minTwoDigit = GAME_CONSTANTS?.TWO_DIGIT_MIN || 10;
-        // Use the current maximum instead of hardcoded TWO_DIGIT_MAX to support custom ranges
-        const maxTwoDigit = Math.min(this.currentMaximum || GAME_CONSTANTS?.DEFAULT_MAXIMUM || 20, 99); // Cap at 99 for 2-digit limit
-        for (let testValue = minTwoDigit; testValue <= maxTwoDigit; testValue++) {
-            currentValues[fieldName] = testValue;
-            if (this.isValidPartialWall(currentValues)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    // NEW: Generalized multi-digit validation timing methods
+    // Multi-digit validation timing methods
 
     getMaxDigitsForField(fieldName) {
         // Determine maximum possible digits for this field based on current maximum

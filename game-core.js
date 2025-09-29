@@ -24,16 +24,6 @@ function getConstants() {
     };
 }
 
-// Legacy constants for backward compatibility - get directly from globals to avoid naming conflicts
-const CORRECT_MESSAGES = (() => {
-    const { LOCALIZATION_CONSTANTS } = getConstants();
-    return LOCALIZATION_CONSTANTS?.CORRECT_MESSAGES || ['Gut', 'Super', 'Toll', 'Prima', 'Klasse', 'Genau', 'Spitze', 'Wunderbar', 'Fantastisch', 'Ausgezeichnet', 'Cool', 'Stark', 'Mega', 'Stimmt genau', 'Bingo', 'Das ist es', 'Bravo', 'Juhu', 'Yay'];
-})();
-const INCORRECT_MESSAGES = (() => {
-    const { LOCALIZATION_CONSTANTS } = getConstants();
-    return LOCALIZATION_CONSTANTS?.INCORRECT_MESSAGES || ['Nee', 'Achwas', 'Stimmt nicht', 'Nicht ganz', 'Schau genauer hin', 'Auweia', 'Huch', 'Oje', 'Nö', 'Schade', 'Quatsch', 'Nix da', 'Oha', 'Ups', 'So nicht', 'Anders'];
-})();
-
 class NumberWallCore {
     constructor() {
         this.values = { a: 0, b: 0, c: 0, d: 0, e: 0, f: 0 };
@@ -229,13 +219,17 @@ class NumberWallCore {
     }
 
     getRandomCorrectMessage() {
-        const randomIndex = Math.floor(Math.random() * CORRECT_MESSAGES.length);
-        return CORRECT_MESSAGES[randomIndex];
+        const { LOCALIZATION_CONSTANTS } = getConstants();
+        const messages = LOCALIZATION_CONSTANTS?.CORRECT_MESSAGES || ['Gut', 'Super', 'Toll', 'Prima', 'Klasse', 'Genau', 'Spitze', 'Wunderbar', 'Fantastisch', 'Ausgezeichnet', 'Cool', 'Stark', 'Mega', 'Stimmt genau', 'Bingo', 'Das ist es', 'Bravo', 'Juhu', 'Yay'];
+        const randomIndex = Math.floor(Math.random() * messages.length);
+        return messages[randomIndex];
     }
 
     getRandomIncorrectMessage() {
-        const randomIndex = Math.floor(Math.random() * INCORRECT_MESSAGES.length);
-        return INCORRECT_MESSAGES[randomIndex];
+        const { LOCALIZATION_CONSTANTS } = getConstants();
+        const messages = LOCALIZATION_CONSTANTS?.INCORRECT_MESSAGES || ['Nee', 'Achwas', 'Stimmt nicht', 'Nicht ganz', 'Schau genauer hin', 'Auweia', 'Huch', 'Oje', 'Nö', 'Schade', 'Quatsch', 'Nix da', 'Oha', 'Ups', 'So nicht', 'Anders'];
+        const randomIndex = Math.floor(Math.random() * messages.length);
+        return messages[randomIndex];
     }
 
     getRandomCorrectAnimation() {
@@ -514,5 +508,5 @@ class SoundManager {
 
 // Export for Node.js
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { NumberWallCore, SoundManager, CORRECT_MESSAGES, INCORRECT_MESSAGES };
+    module.exports = { NumberWallCore, SoundManager };
 }

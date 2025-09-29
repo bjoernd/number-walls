@@ -1,0 +1,274 @@
+Redundant Code Analysis and Refactoring Recommendations
+========================================================
+
+This document identifies redundant code in the Number Walls codebase and provides
+implementation guidance for refactoring each item.
+
+HIGH PRIORITY ITEMS
+===================
+
+1. Remove Legacy canFieldBeTwoDigits() Method [COMPLETED]
+----------------------------------------------------------
+Location: game.js lines 260-297 (38 lines)
+
+Description:
+The canFieldBeTwoDigits() method is superseded by the more general
+canFieldHaveMoreDigits() method (game.js:307-378). This legacy method was
+preserved for backward compatibility but is never called anywhere in the codebase.
+
+The newer canFieldHaveMoreDigits() method:
+- Supports any number of digits (not just 2)
+- Adapts to custom maximum values
+- Uses optimized calculation instead of brute force
+
+Implementation Steps:
+1. Search the entire codebase for any calls to canFieldBeTwoDigits()
+2. Verify no calls exist (should be zero occurrences)
+3. Delete the entire canFieldBeTwoDigits() method from game.js
+4. Update CLAUDE.md to remove references to "Legacy support: Original
+   canFieldBeTwoDigits method preserved for backward compatibility"
+5. Run all tests to ensure no breakage (npm test)
+6. Validate the game works correctly in browser
+
+Impact: Removes 38 lines of dead code without affecting functionality.
+
+
+2. Remove Unused Legacy Message Constants [COMPLETED]
+------------------------------------------------------
+Location: game-core.js lines 28-35 (8 lines)
+
+Description:
+The CORRECT_MESSAGES and INCORRECT_MESSAGES constants are created from
+LOCALIZATION_CONSTANTS but are never used. All methods that need these messages
+(getRandomCorrectMessage() and getRandomIncorrectMessage()) directly access
+LOCALIZATION_CONSTANTS instead.
+
+Current code:
+```javascript
+const CORRECT_MESSAGES = (() => {
+    const { LOCALIZATION_CONSTANTS } = getConstants();
+    return LOCALIZATION_CONSTANTS?.CORRECT_MESSAGES || ['Gut', ...];
+})();
+const INCORRECT_MESSAGES = (() => {
+    const { LOCALIZATION_CONSTANTS } = getConstants();
+    return LOCALIZATION_CONSTANTS?.INCORRECT_MESSAGES || ['Nee', ...];
+})();
+```
+
+Implementation Steps:
+1. Search codebase for references to CORRECT_MESSAGES and INCORRECT_MESSAGES
+2. Verify they're only used in:
+   - Their own definitions (lines 28-35)
+   - Module exports (line 517)
+3. Remove the constant definitions (lines 28-35)
+4. Remove CORRECT_MESSAGES and INCORRECT_MESSAGES from module.exports (line 517)
+5. Update game.test.js if it imports these constants
+6. Run all tests to ensure no breakage (npm test)
+
+Impact: Removes 8 lines of unused code and simplifies module exports.
+
+
+3. Consolidate Duplicate getConstants() Functions
+--------------------------------------------------
+Location:
+- game.js lines 1-10 (getGameConstants)
+- game-core.js lines 16-25 (getConstants)
+
+Description:
+Both files have nearly identical helper functions to retrieve constants from the
+global scope. The only difference is the function name and the exact set of
+constants returned.
+
+game.js returns:
+- GAME_CONSTANTS, ANIMATION_CONSTANTS, PLATFORM_CONSTANTS, LOCALIZATION_CONSTANTS
+
+game-core.js returns:
+- GAME_CONSTANTS, AUDIO_CONSTANTS, ANIMATION_CONSTANTS, FIELD_CONSTANTS,
+  LOCALIZATION_CONSTANTS
+
+Implementation Options:
+
+Option A: Standardize on a single function name and signature
+1. Rename getGameConstants() in game.js to getConstants()
+2. Update game-core.js getConstants() to return all constants (add PLATFORM_CONSTANTS)
+3. Update game.js getConstants() to return all constants (add AUDIO_CONSTANTS,
+   FIELD_CONSTANTS)
+4. Update all callers to use consistent destructuring
+5. Run tests to verify
+
+Option B: Keep separate but document the intentional separation
+1. Add comments explaining why each file has its own version
+2. Document which constants each layer needs
+3. Keep as-is for layer separation
+
+Recommendation: Option A for consistency and maintainability.
+
+Impact: Reduces code duplication and standardizes constant access pattern.
+
+
+MEDIUM PRIORITY ITEMS
+======================
+
+4. Extract Repeated currentValues Building Logic
+-------------------------------------------------
+Location:
+- game.js lines 316-333 (canFieldHaveMoreDigits)
+- game.js lines 265-282 (canFieldBeTwoDigits - will be removed in item #1)
+- game.js lines 398-428 (isValidPartialWall)
+
+Description:
+Multiple methods build a currentValues object by iterating through inputs and
+distinguishing between hidden fields, visible fields, and the field being tested.
+This logic is duplicated with slight variations.
+
+Common pattern:
+```javascript
+const currentValues = {};
+Object.keys(this.inputs).forEach(key => {
+    if (this.hiddenFields.includes(key) && key !== fieldName) {
+        // For other hidden fields, use their current values
+        const userValue = this.inputs[key].value.trim();
+        if (userValue !== '') {
+            currentValues[key] = parseInt(userValue);
+        } else {
+            currentValues[key] = null;
+        }
+    } else if (!this.hiddenFields.includes(key)) {
+        // For visible fields, use the known values
+        currentValues[key] = this.values[key];
+    } else {
+        // For the field being checked, set to null
+        currentValues[key] = null;
+    }
+});
+```
+
+Implementation Steps:
+1. Create new helper method in NumberWall class:
+   buildCurrentValues(excludeField = null)
+
+2. Method should:
+   - Take optional excludeField parameter
+   - Return object with current state of all fields
+   - Handle hidden fields with user input
+   - Handle visible fields with known values
+   - Handle excluded field as null
+
+3. Replace duplicated logic with calls to helper method
+4. Run tests to ensure validation still works correctly
+
+Note: Only implement after removing canFieldBeTwoDigits() (item #1) to reduce
+number of places to refactor.
+
+Impact: Reduces ~50 lines of duplicated logic across 2-3 methods.
+
+
+5. Centralize Constants Retrieval Pattern
+------------------------------------------
+Location: Throughout game.js and game-core.js (30+ occurrences)
+
+Description:
+The pattern of retrieving constants with fallbacks is repeated throughout the code:
+
+```javascript
+const { GAME_CONSTANTS } = getGameConstants();
+const constants = GAME_CONSTANTS || { MIN_NUMBER: 0, DEFAULT_MAXIMUM: 20 };
+```
+
+This creates inconsistency in fallback values across different methods.
+
+Implementation Steps:
+1. Create centralized constant accessor methods in each class:
+   - getGameConstant(key, fallback)
+   - getAudioConstant(key, fallback)
+   - etc.
+
+2. Or: Define class-level cached constants in constructor:
+   ```javascript
+   constructor() {
+       const { GAME_CONSTANTS } = getGameConstants();
+       this.constants = GAME_CONSTANTS || { /* fallbacks */ };
+   }
+   ```
+
+3. Replace all inline constant retrieval with centralized access
+4. Document fallback values in one place
+
+Note: This is a larger refactoring that may not be worth the effort vs. current
+approach. Consider only if constants access becomes a pain point.
+
+Impact: Would centralize fallback values and reduce repetitive code, but requires
+extensive changes (30+ locations).
+
+
+LOW PRIORITY ITEMS
+==================
+
+6. Consider Extracting Input Field Iteration Patterns
+------------------------------------------------------
+Location: Multiple methods in game.js
+
+Description:
+Several methods iterate through this.inputs with similar patterns but different
+actions. Could potentially extract to iterator helpers, but the actions vary
+enough that extraction may not improve readability.
+
+Examples:
+- displayWall() - sets values and disabled state
+- checkAnswers() - applies visual feedback
+- setupEventListeners() - attaches event handlers
+- updateInputMaxLengths() - sets maxlength attribute
+
+Recommendation: Keep as-is. The iteration is simple and the actions are different
+enough that extracting would not improve clarity.
+
+Impact: Minimal - iterations are already clear and concise.
+
+
+TESTING REQUIREMENTS
+=====================
+
+After implementing any refactoring:
+1. Run npm test to verify all 8 tests pass
+2. Validate JavaScript syntax:
+   node -c constants.js && node -c game-core.js && node -c game.js
+3. Open index.html in browser and test:
+   - Game generates puzzles correctly
+   - Validation works for correct/incorrect answers
+   - Multi-digit input validation timing works
+   - Custom maximum ranges work (20-1000)
+   - Sound effects play correctly
+   - Score tracking works
+4. Test edge cases:
+   - F=90 bug case
+   - 3-digit numbers with high custom maximum
+   - Invalid inputs are rejected
+
+
+IMPLEMENTATION ORDER
+====================
+
+Recommended order for implementing these refactorings:
+
+1. Item #1: Remove canFieldBeTwoDigits() (easy, no dependencies)
+2. Item #2: Remove legacy message constants (easy, no dependencies)
+3. Item #3: Consolidate getConstants() functions (moderate complexity)
+4. Item #4: Extract currentValues building (depends on #1 being complete)
+5. Item #5: Consider only if needed in future
+
+Items #1 and #2 can be done together in a single commit.
+Items #3 and #4 should be separate commits.
+
+
+ESTIMATED IMPACT
+================
+
+Total lines that can be removed: ~46 lines (items #1 and #2)
+Total lines that can be deduplicated: ~60-80 lines (items #3 and #4)
+Net reduction: ~100-120 lines with improved maintainability
+
+Code quality improvements:
+- Removes dead code
+- Reduces duplication
+- Improves consistency
+- Makes codebase easier to understand and maintain

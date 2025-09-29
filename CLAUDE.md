@@ -323,7 +323,6 @@ The game implements intelligent validation timing to prevent premature validatio
 - **Mathematical optimization**: Calculates exact required values using wall equations (A+B=D, B+C=E, D+E=F)
 - **Performance**: O(1) calculation instead of O(n) brute force testing
 - **Fallback**: Sampling method for cases where exact calculation isn't possible
-- **Legacy support**: Original `canFieldBeTwoDigits` method preserved for backward compatibility
 
 ## Constants Management System
 
