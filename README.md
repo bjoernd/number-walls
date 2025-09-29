@@ -30,15 +30,6 @@ Your performance is tracked during your session:
 
 Scores reset when you reload the page.
 
-## Features
-
-- **Interactive audio feedback**: Programmatically generated sound effects for correct answers, incorrect answers, and new puzzles (activates after first interaction)
-- **German language support**: All feedback messages in German with varied vocabulary
-- **Animated visual feedback**: Dynamic animations synchronized with audio for enhanced engagement
-- **Sound control**: Toggle audio on/off with the speaker button
-- **Persistent scoring**: Track your performance throughout your session
-- **Mobile-friendly**: Responsive design that works on phones and tablets
-
 ## Requirements
 
 Any modern web browser with Web Audio API support - no installation needed.
